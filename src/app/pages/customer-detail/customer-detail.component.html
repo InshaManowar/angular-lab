@@ -1,0 +1,93 @@
+<div class="form-page">
+  <h2>Customer Details</h2>
+  <p class="description">View customer information</p>
+  
+  <!-- Loading indicator -->
+  <div class="card" *ngIf="loading">
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3">Loading customer information...</p>
+    </div>
+  </div>
+  
+  <!-- Error message -->
+  <div class="card" *ngIf="error && !loading">
+    <div class="alert alert-danger">
+      <i class="bi bi-exclamation-triangle-fill"></i> 
+      {{ error }}
+    </div>
+    <div class="text-center mt-3">
+      <button class="btn btn-primary" routerLink="/customer-list">
+        <i class="bi bi-arrow-left"></i> Back to Customer List
+      </button>
+    </div>
+  </div>
+  
+  <!-- Customer data -->
+  <div class="card" *ngIf="customer && !loading && !error">
+    <div class="customer-header">
+      <div class="customer-title">
+        <h3>{{ customer.cust_full_name }}</h3>
+        <span class="customer-id">ID: {{ customer.cust_num }}</span>
+      </div>
+      <span class="status-badge" [ngClass]="getStatusClass(customer.cust_status)">
+        {{ customer.cust_status }}
+      </span>
+    </div>
+    
+    <hr>
+    
+    <div class="detail-section">
+      <div class="detail-item">
+        <label>Customer Type</label>
+        <span>{{ getCustomerTypeLabel(customer.cust_type) }}</span>
+      </div>
+      
+      <div class="detail-item">
+        <label>Date of Birth</label>
+        <span>{{ customer.cust_dob | date }}</span>
+      </div>
+      
+      <div class="detail-item">
+        <label>Contact Number</label>
+        <span>{{ customer.cust_contact_num }}</span>
+      </div>
+      
+      <div class="detail-item">
+        <label>Mobile Number</label>
+        <span>{{ customer.cust_mobile_num || 'N/A' }}</span>
+      </div>
+      
+      <div class="detail-item">
+        <label>Email</label>
+        <span>{{ customer.cust_email }}</span>
+      </div>
+      
+      <div class="detail-item">
+        <label>Country</label>
+        <span>{{ customer.cust_country }}</span>
+      </div>
+      
+      <div class="detail-item">
+        <label>Effective Date</label>
+        <span>{{ customer.cust_efctv_dt | date }}</span>
+      </div>
+    </div>
+    
+    <div class="action-buttons">
+      <button type="button" class="btn btn-secondary" routerLink="/customer-list">
+        <i class="bi bi-arrow-left"></i> Back to List
+      </button>
+      <div class="btn-group">
+        <button type="button" class="btn btn-primary" (click)="editCustomer()">
+          <i class="bi bi-pencil"></i> Edit
+        </button>
+        <button type="button" class="btn btn-danger" (click)="deleteCustomer()">
+          <i class="bi bi-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

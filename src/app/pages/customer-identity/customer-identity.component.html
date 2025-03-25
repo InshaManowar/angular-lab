@@ -1,0 +1,73 @@
+<div class="form-page">
+  <h2>Proof of Identity</h2>
+  <p class="description">Upload customer identification documents</p>
+  
+  <div class="card">
+    <form [formGroup]="identityForm" (ngSubmit)="onSubmit()">
+      <div class="form-section">
+        <div class="form-group">
+          <label for="idType">ID Type *</label>
+          <select id="idType" formControlName="idType" class="form-control" required>
+            <option value="">-- Select ID Type --</option>
+            <option value="passport">Passport</option>
+            <option value="driverLicense">Driver's License</option>
+            <option value="nationalId">National ID Card</option>
+            <option value="other">Other</option>
+          </select>
+          <div *ngIf="identityForm.get('idType')?.invalid && identityForm.get('idType')?.touched" class="error-message">
+            ID Type is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="idNumber">ID Number *</label>
+          <input type="text" id="idNumber" formControlName="idNumber" class="form-control" required>
+          <div *ngIf="identityForm.get('idNumber')?.invalid && identityForm.get('idNumber')?.touched" class="error-message">
+            ID Number is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="issueDate">Issue Date</label>
+          <input type="date" id="issueDate" formControlName="issueDate" class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <label for="expiryDate">Expiry Date *</label>
+          <input type="date" id="expiryDate" formControlName="expiryDate" class="form-control" required>
+          <div *ngIf="identityForm.get('expiryDate')?.invalid && identityForm.get('expiryDate')?.touched" class="error-message">
+            Expiry Date is required
+          </div>
+        </div>
+      </div>
+      
+      <div class="upload-section">
+        <h3>Document Upload</h3>
+        <p>Please upload scanned copies of the identification document</p>
+        
+        <div class="form-group">
+          <label for="frontSide">Front Side *</label>
+          <div class="upload-control">
+            <input type="file" id="frontSide" class="file-input" (change)="onFileSelected($event, 'front')" accept="image/*, application/pdf">
+            <button type="button" class="btn btn-outline">Choose File</button>
+            <span class="file-name">{{ frontFileName || 'No file chosen' }}</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="backSide">Back Side</label>
+          <div class="upload-control">
+            <input type="file" id="backSide" class="file-input" (change)="onFileSelected($event, 'back')" accept="image/*, application/pdf">
+            <button type="button" class="btn btn-outline">Choose File</button>
+            <span class="file-name">{{ backFileName || 'No file chosen' }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" routerLink="/customer-name">Back</button>
+        <button type="submit" class="btn btn-primary" [disabled]="!identityForm.valid || !frontFile">Next</button>
+      </div>
+    </form>
+  </div>
+</div>

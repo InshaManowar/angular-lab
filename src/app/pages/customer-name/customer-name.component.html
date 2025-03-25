@@ -1,0 +1,66 @@
+<div class="form-page">
+  <h2>Customer Personal Information</h2>
+  <p class="description">Enter the customer's personal details</p>
+  
+  <div class="card">
+    <form [formGroup]="nameForm" (ngSubmit)="onSubmit()">
+      <div class="form-section">
+        <div class="form-group">
+          <label for="title">Title</label>
+          <select id="title" formControlName="title" class="form-control">
+            <option value="">-- Select --</option>
+            <option value="Mr">Mr</option>
+            <option value="Mrs">Mrs</option>
+            <option value="Ms">Ms</option>
+            <option value="Dr">Dr</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="firstName">First Name *</label>
+          <input type="text" id="firstName" formControlName="firstName" class="form-control" required>
+          <div *ngIf="nameForm.get('firstName')?.invalid && nameForm.get('firstName')?.touched" class="error-message">
+            First name is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="middleName">Middle Name</label>
+          <input type="text" id="middleName" formControlName="middleName" class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <label for="lastName">Last Name *</label>
+          <input type="text" id="lastName" formControlName="lastName" class="form-control" required>
+          <div *ngIf="nameForm.get('lastName')?.invalid && nameForm.get('lastName')?.touched" class="error-message">
+            Last name is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="dateOfBirth">Date of Birth *</label>
+          <input type="date" id="dateOfBirth" formControlName="dateOfBirth" class="form-control" required>
+          <div *ngIf="nameForm.get('dateOfBirth')?.invalid && nameForm.get('dateOfBirth')?.touched" class="error-message">
+            Date of birth is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="gender">Gender</label>
+          <select id="gender" formControlName="gender" class="form-control">
+            <option value="">-- Select --</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+            <option value="PreferNotToSay">Prefer not to say</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" routerLink="/customer-detail">Back</button>
+        <button type="submit" class="btn btn-primary" [disabled]="nameForm.invalid">Next</button>
+      </div>
+    </form>
+  </div>
+</div>

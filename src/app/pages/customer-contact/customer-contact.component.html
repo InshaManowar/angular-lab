@@ -1,0 +1,68 @@
+<div class="form-page">
+  <h2>Customer Contact Details</h2>
+  <p class="description">Enter the customer's contact information</p>
+  
+  <div class="card">
+    <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+      <div class="form-section">
+        <div class="form-group">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" formControlName="email" class="form-control" required>
+          <div *ngIf="contactForm.get('email')?.invalid && contactForm.get('email')?.touched" class="error-message">
+            <span *ngIf="contactForm.get('email')?.errors?.['required']">Email is required</span>
+            <span *ngIf="contactForm.get('email')?.errors?.['email']">Please enter a valid email address</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="phone">Phone Number *</label>
+          <input type="tel" id="phone" formControlName="phone" class="form-control" placeholder="e.g. +1 123-456-7890" required>
+          <div *ngIf="contactForm.get('phone')?.invalid && contactForm.get('phone')?.touched" class="error-message">
+            Phone number is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="alternatePhone">Alternate Phone</label>
+          <input type="tel" id="alternatePhone" formControlName="alternatePhone" class="form-control" placeholder="e.g. +1 123-456-7890">
+        </div>
+      </div>
+      
+      <div class="form-section">
+        <h3>Contact Preferences</h3>
+        
+        <div class="checkbox-group">
+          <div class="form-check">
+            <input type="checkbox" id="emailConsent" formControlName="emailConsent" class="form-check-input">
+            <label for="emailConsent" class="form-check-label">I consent to receive email communications</label>
+          </div>
+          
+          <div class="form-check">
+            <input type="checkbox" id="smsConsent" formControlName="smsConsent" class="form-check-input">
+            <label for="smsConsent" class="form-check-label">I consent to receive SMS/text messages</label>
+          </div>
+          
+          <div class="form-check">
+            <input type="checkbox" id="phoneConsent" formControlName="phoneConsent" class="form-check-input">
+            <label for="phoneConsent" class="form-check-label">I consent to receive phone calls</label>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="preferredContactMethod">Preferred Contact Method</label>
+          <select id="preferredContactMethod" formControlName="preferredContactMethod" class="form-control">
+            <option value="">-- Select Preferred Method --</option>
+            <option value="email">Email</option>
+            <option value="phone">Phone</option>
+            <option value="sms">SMS/Text</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" routerLink="/customer-identity">Back</button>
+        <button type="submit" class="btn btn-primary" [disabled]="contactForm.invalid">Next</button>
+      </div>
+    </form>
+  </div>
+</div>

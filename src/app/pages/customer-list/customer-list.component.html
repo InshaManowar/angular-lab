@@ -1,0 +1,110 @@
+<div class="form-page">
+  <h2>Customer List</h2>
+  <p class="description">Manage your customers</p>
+  
+  <div class="action-bar">
+    <div class="search-box input-group">
+      <input 
+        type="text" 
+        class="form-control" 
+        placeholder="Search customers..." 
+        aria-label="Search customers"
+        [(ngModel)]="searchTerm"
+        (input)="filterCustomers()">
+      <button class="btn btn-outline-secondary" type="button">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+    <button class="btn btn-primary" routerLink="/customer-address">
+      <i class="bi bi-plus"></i> Add New Customer
+    </button>
+  </div>
+  
+  <!-- Loading indicator -->
+  <div class="card" *ngIf="loading">
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3">Loading customers...</p>
+    </div>
+  </div>
+  
+  <!-- Error message -->
+  <div class="card" *ngIf="error">
+    <div class="alert alert-danger">
+      <i class="bi bi-exclamation-triangle-fill"></i> 
+      Error loading customers. Please try again later.
+    </div>
+  </div>
+  
+  <!-- Customer table -->
+  <div class="card" *ngIf="!loading && !error">
+    <table class="customer-table">
+      <thead>
+        <tr>
+          <th>#ID</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let customer of paginatedCustomers">
+          <td>{{ customer.cust_num }}</td>
+          <td>{{ customer.cust_full_name }}</td>
+          <td>{{ getCustomerTypeLabel(customer.cust_type) }}</td>
+          <td>{{ customer.cust_email }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(customer.cust_status)">
+              {{ customer.cust_status }}
+            </span>
+          </td>
+          <td class="actions">
+            <button class="btn btn-info btn-sm" [routerLink]="['/customer-detail', customer.cust_num]">
+              <i class="bi bi-eye"></i> View
+            </button>
+            <button class="btn btn-primary btn-sm" [routerLink]="['/customer-edit', customer.cust_num]">
+              <i class="bi bi-pencil"></i> Edit
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="deleteCustomer(customer.cust_num)">
+              <i class="bi bi-trash"></i> Delete
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredCustomers.length === 0">
+          <td colspan="6" class="text-center py-4">No customers found</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <!-- Pagination -->
+    <div class="pagination-container">
+      <ul class="pagination">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button class="page-link" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+        </li>
+        <li class="page-item" *ngFor="let page of getPageNumbers()" [class.active]="page === currentPage">
+          <button class="page-link" (click)="changePage(page)">{{ page }}</button>
+        </li>
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <button class="page-link" (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </li>
+      </ul>
+      <div class="page-size">
+        <select class="form-select form-select-sm" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+          <option [value]="5">5 per page</option>
+          <option [value]="10">10 per page</option>
+          <option [value]="20">20 per page</option>
+          <option [value]="50">50 per page</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div> 

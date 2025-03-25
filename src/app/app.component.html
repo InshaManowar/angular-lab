@@ -1,0 +1,24 @@
+<div class="app-container">
+  <header>
+    <div class="header-content">
+      <div class="logo">
+        <h1>{{ title }}</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
+          <li><a routerLink="/customer-list" routerLinkActive="active">Customers</a></li>
+          <li><a routerLink="/customer-address" routerLinkActive="active">Add Customer</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  
+  <main>
+    <router-outlet></router-outlet>
+  </main>
+  
+  <footer>
+    <p>&copy; {{ currentYear }} Customer Management System | All Rights Reserved</p>
+  </footer>
+</div>

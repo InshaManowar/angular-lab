@@ -1,0 +1,126 @@
+<div class="form-page">
+  <h2>Edit Customer</h2>
+  <p class="description">Update customer information</p>
+  
+  <div class="card" *ngIf="customerForm">
+    <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
+      <div class="form-section">
+        <div class="form-group">
+          <label for="cust_type">Customer Type *</label>
+          <select id="cust_type" formControlName="cust_type" class="form-select">
+            <option value="">-- Select Type --</option>
+            <option value="1">Individual</option>
+            <option value="2">Business</option>
+            <option value="3">Government</option>
+          </select>
+          <small class="text-muted">Original value: {{ getCustomerTypeLabel(originalCustomer?.cust_type) }}</small>
+          <div *ngIf="customerForm.get('cust_type')?.invalid && customerForm.get('cust_type')?.touched" class="error-message">
+            Customer type is required
+          </div>
+        </div>
+        
+        <div class="form-group full-width">
+          <label for="cust_full_name">Full Name *</label>
+          <input type="text" id="cust_full_name" formControlName="cust_full_name" class="form-control">
+          <small class="text-muted">Original value: {{ originalCustomer?.cust_full_name }}</small>
+          <div *ngIf="customerForm.get('cust_full_name')?.invalid && customerForm.get('cust_full_name')?.touched" class="error-message">
+            Full name is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="cust_dob">Date of Birth *</label>
+          <input type="date" id="cust_dob" formControlName="cust_dob" class="form-control">
+          <small class="text-muted">Original value: {{ originalCustomer?.cust_dob | date }}</small>
+          <div *ngIf="customerForm.get('cust_dob')?.invalid && customerForm.get('cust_dob')?.touched" class="error-message">
+            Date of birth is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="cust_status">Status *</label>
+          <select id="cust_status" formControlName="cust_status" class="form-select">
+            <option value="">-- Select Status --</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Pending">Pending</option>
+          </select>
+          <small class="text-muted">Original value: {{ originalCustomer?.cust_status }}</small>
+          <div *ngIf="customerForm.get('cust_status')?.invalid && customerForm.get('cust_status')?.touched" class="error-message">
+            Status is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="cust_contact_num">Contact Number *</label>
+          <input type="tel" id="cust_contact_num" formControlName="cust_contact_num" class="form-control">
+          <small class="text-muted">Original value: {{ originalCustomer?.cust_contact_num }}</small>
+          <div *ngIf="customerForm.get('cust_contact_num')?.invalid && customerForm.get('cust_contact_num')?.touched" class="error-message">
+            Contact number is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="cust_mobile_num">Mobile Number</label>
+          <input type="tel" id="cust_mobile_num" formControlName="cust_mobile_num" class="form-control">
+          <small class="text-muted">Original value: {{ originalCustomer?.cust_mobile_num || 'N/A' }}</small>
+        </div>
+        
+        <div class="form-group">
+          <label for="cust_email">Email *</label>
+          <input type="email" id="cust_email" formControlName="cust_email" class="form-control">
+          <small class="text-muted">Original value: {{ originalCustomer?.cust_email }}</small>
+          <div *ngIf="customerForm.get('cust_email')?.invalid && customerForm.get('cust_email')?.touched" class="error-message">
+            Valid email is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="cust_country">Country *</label>
+          <select id="cust_country" formControlName="cust_country" class="form-select">
+            <option value="">-- Select Country --</option>
+            <option value="US">United States</option>
+            <option value="CA">Canada</option>
+            <option value="MX">Mexico</option>
+            <option value="UK">United Kingdom</option>
+            <option value="IN">India</option>
+            <option value="AU">Australia</option>
+            <option value="JP">Japan</option>
+            <option value="DE">Germany</option>
+            <option value="FR">France</option>
+          </select>
+          <small class="text-muted">Original value: {{ originalCustomer?.cust_country }}</small>
+          <div *ngIf="customerForm.get('cust_country')?.invalid && customerForm.get('cust_country')?.touched" class="error-message">
+            Country is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="cust_efctv_dt">Effective Date *</label>
+          <input type="date" id="cust_efctv_dt" formControlName="cust_efctv_dt" class="form-control">
+          <small class="text-muted">Original value: {{ originalCustomer?.cust_efctv_dt | date }}</small>
+          <div *ngIf="customerForm.get('cust_efctv_dt')?.invalid && customerForm.get('cust_efctv_dt')?.touched" class="error-message">
+            Effective date is required
+          </div>
+        </div>
+      </div>
+      
+      <div class="action-buttons">
+        <button type="button" class="btn btn-secondary" [routerLink]="['/customer-detail', customerId]">Cancel</button>
+        <div class="btn-group">
+          <button type="button" class="btn btn-outline-danger" (click)="resetForm()">Reset to Original</button>
+          <button type="submit" class="btn btn-primary" [disabled]="customerForm.invalid">Save Changes</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="card" *ngIf="!customerForm">
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3">Loading customer information...</p>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,40 @@
+<div class="container">
+  <h2>User Management</h2>
+  <!-- User Form -->
+  <form (submit)="saveUser()">
+    <div>
+      <label for="name">Name:</label>
+      <input type="text" id="name" [(ngModel)]="userForm.name" name="name" required />
+    </div>
+    <div>
+      <label for="email">Email:</label>
+      <input type="email" id="email" [(ngModel)]="userForm.email" name="email" required />
+    </div>
+    <button type="submit">{{ isEditing ? 'Update' : 'Add' }} User</button>
+    <button type="button" (click)="resetForm()">Cancel</button>
+  </form>
+  <!-- User List -->
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (user of users; track user.id) {
+        <tr>
+          <td>{{ user.id }}</td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <button (click)="editUser(user)">Edit</button>
+            <button (click)="deleteUser(user.id)">Delete</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div> 
