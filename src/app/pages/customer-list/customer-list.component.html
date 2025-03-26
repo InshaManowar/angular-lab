@@ -43,7 +43,6 @@
     <table class="customer-table">
       <thead>
         <tr>
-          <th>#ID</th>
           <th>Name</th>
           <th>Type</th>
           <th>Email</th>
@@ -53,7 +52,6 @@
       </thead>
       <tbody>
         <tr *ngFor="let customer of filteredCustomers">
-          <td>{{ customer.cust_num }} <small *ngIf="customer.cust_num === undefined">(undefined)</small></td>
           <td>{{ customer.cust_full_name }}</td>
           <td>{{ getCustomerTypeLabel(customer.cust_type) }}</td>
           <td>{{ customer.cust_email }}</td>
@@ -69,13 +67,10 @@
             <button class="btn btn-primary btn-sm" (click)="navigateToCustomerEdit(customer)">
               <i class="bi bi-pencil"></i> Edit
             </button>
-            <button class="btn btn-danger btn-sm" (click)="deleteCustomerObject(customer)">
-              <i class="bi bi-trash"></i> Delete
-            </button>
           </td>
         </tr>
         <tr *ngIf="filteredCustomers.length === 0">
-          <td colspan="6" class="text-center py-4">No customers found</td>
+          <td colspan="5" class="text-center py-4">No customers found</td>
         </tr>
       </tbody>
     </table>
