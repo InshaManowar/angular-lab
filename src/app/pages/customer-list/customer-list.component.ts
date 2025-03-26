@@ -56,6 +56,16 @@ export class CustomerListComponent implements OnInit {
       });
   }
 
+  logCustomerId(id: any, event: Event): void {
+    event.stopPropagation();
+    console.log('View clicked, ID:', id);
+    
+    // If ID is undefined, let's look for a customer with this specific info
+    if (id === undefined) {
+      console.error('Customer ID is undefined');
+    }
+  }
+
   filterCustomers(): void {
     if (!this.searchTerm) {
       this.filteredCustomers = [...this.customers];
