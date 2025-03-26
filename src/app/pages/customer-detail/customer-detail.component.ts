@@ -38,6 +38,14 @@ export class CustomerDetailComponent implements OnInit {
         return;
       }
       
+      // Sometimes ID might be "undefined" as a string
+      if (idParam === "undefined" || idParam === "null") {
+        this.error = "Invalid customer ID: The ID value is undefined";
+        this.loading = false;
+        console.error('ID parameter is "undefined" or "null" string');
+        return;
+      }
+      
       // Try to convert to number and check if it's valid
       const id = Number(idParam);
       console.log('Converted ID:', id, 'Is NaN:', isNaN(id));

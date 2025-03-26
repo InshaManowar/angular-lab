@@ -49,6 +49,16 @@ export class CustomerService {
       map(response => {
         // Check if response is an array or an object with content property
         let customers = Array.isArray(response) ? response : (response.content || []);
+        
+        // Ensure each customer has the required properties
+        customers = customers.map((customer: any) => {
+          // If cust_num is missing, try to get it from id property
+          if (customer.cust_num === undefined && customer.id !== undefined) {
+            customer.cust_num = customer.id;
+          }
+          return customer;
+        });
+        
         console.log('Processed customer data:', customers);
         return customers;
       }),
@@ -78,7 +88,20 @@ export class CustomerService {
     }
     
     return this.http.get<CustomerData>(`${this.apiUrl}/${id}`).pipe(
-      tap(response => console.log('API response:', response)),
+      tap(response => {
+        console.log('Customer detail API response:', response);
+        
+        // Check if the response has the expected properties
+        if (!response || !response.cust_num) {
+          console.warn('API returned customer without cust_num:', response);
+          
+          // If the backend response structure has changed, try to adapt
+          if (response && 'id' in response) {
+            console.log('Found id property instead of cust_num, adapting response');
+            (response as any).cust_num = (response as any).id;
+          }
+        }
+      }),
       catchError(error => {
         console.error(`Error fetching customer with ID ${id}:`, error);
         return throwError(() => new Error('Failed to load customer details'));

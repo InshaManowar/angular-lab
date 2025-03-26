@@ -60,10 +60,33 @@ export class CustomerListComponent implements OnInit {
     event.stopPropagation();
     console.log('View clicked, ID:', id);
     
-    // If ID is undefined, let's look for a customer with this specific info
     if (id === undefined) {
       console.error('Customer ID is undefined');
     }
+  }
+
+  viewCustomer(id: any, event: Event): void {
+    event.stopPropagation();
+    console.log('Navigating to view customer with ID:', id);
+    
+    if (!id) {
+      console.error('Cannot navigate: Customer ID is invalid', id);
+      return;
+    }
+    
+    this.router.navigate(['/customer-detail', id]);
+  }
+  
+  editCustomer(id: any, event: Event): void {
+    event.stopPropagation();
+    console.log('Navigating to edit customer with ID:', id);
+    
+    if (!id) {
+      console.error('Cannot navigate: Customer ID is invalid', id);
+      return;
+    }
+    
+    this.router.navigate(['/customer-edit', id]);
   }
 
   filterCustomers(): void {

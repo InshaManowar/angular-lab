@@ -63,7 +63,7 @@
             </span>
           </td>
           <td class="actions">
-            <button class="btn btn-info btn-sm" [routerLink]="['/customer-detail', customer.cust_num]" (click)="logCustomerId(customer.cust_num, $event)">
+            <button class="btn btn-info btn-sm" (click)="navigateToCustomerDetail(customer)">
               <i class="bi bi-eye"></i> View
             </button>
             <button class="btn btn-primary btn-sm" [routerLink]="['/customer-edit', customer.cust_num]">
