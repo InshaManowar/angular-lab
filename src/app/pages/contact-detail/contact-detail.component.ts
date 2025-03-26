@@ -92,20 +92,8 @@ export class ContactDetailComponent implements OnInit {
   }
 
   editContact(): void {
-    this.router.navigate(['/contact-edit', this.contactId]);
-  }
-
-  deleteContact(): void {
-    if (confirm('Are you sure you want to delete this contact?')) {
-      this.contactService.deleteContact(this.contactId).subscribe({
-        next: () => {
-          this.router.navigate(['/contact-list']);
-        },
-        error: (error) => {
-          console.error('Error deleting contact:', error);
-        }
-      });
-    }
+    console.log('Navigating to edit contact with ID:', this.contactId);
+    this.router.navigate(['contact-edit', this.contactId]);
   }
 
   getContactTypeLabel(type?: string): string {

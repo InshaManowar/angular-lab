@@ -191,7 +191,7 @@ export class ContactEditComponent implements OnInit {
         next: (response) => {
           console.log('Contact updated successfully:', response);
           this.loading = false;
-          this.router.navigate(['/contact-detail', this.contactId]);
+          this.router.navigate(['contact-detail', this.contactId]);
         },
         error: (error) => {
           console.error('Error updating contact:', error);

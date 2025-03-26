@@ -70,7 +70,8 @@ export class ContactListComponent implements OnInit {
       return;
     }
     
-    this.router.navigate(['/contact-detail', contact.customeridentifier]);
+    console.log('Navigating to contact detail with ID:', contact.customeridentifier);
+    this.router.navigate(['contact-detail', contact.customeridentifier]);
   }
 
   navigateToContactEdit(contact: CustomerContactDetails): void {
@@ -79,7 +80,8 @@ export class ContactListComponent implements OnInit {
       return;
     }
     
-    this.router.navigate(['/contact-edit', contact.customeridentifier]);
+    console.log('Navigating to contact edit with ID:', contact.customeridentifier);
+    this.router.navigate(['contact-edit', contact.customeridentifier]);
   }
 
   deleteContact(contact: CustomerContactDetails): void {
