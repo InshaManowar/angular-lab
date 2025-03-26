@@ -15,15 +15,9 @@ import { finalize } from 'rxjs/operators';
 export class CustomerListComponent implements OnInit {
   customers: any[] = [];
   filteredCustomers: any[] = [];
-  paginatedCustomers: any[] = [];
   searchTerm: string = '';
   loading: boolean = false;
   error: boolean = false;
-  
-  // Pagination
-  pageSize: number = 10;
-  currentPage: number = 1;
-  totalPages: number = 1;
 
   constructor(
     private router: Router,
@@ -48,7 +42,6 @@ export class CustomerListComponent implements OnInit {
         next: (data) => {
           this.customers = data;
           this.filteredCustomers = [...data];
-          this.updatePagination();
         },
         error: (error) => {
           console.error('Error loading customers:', error);
@@ -68,47 +61,6 @@ export class CustomerListComponent implements OnInit {
         customer.cust_num?.toString().includes(term)
       );
     }
-    this.currentPage = 1;
-    this.updatePagination();
-  }
-
-  updatePagination(): void {
-    this.totalPages = Math.ceil(this.filteredCustomers.length / this.pageSize);
-    if (this.totalPages === 0) this.totalPages = 1;
-    if (this.currentPage > this.totalPages) this.currentPage = this.totalPages;
-    
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = Math.min(startIndex + this.pageSize, this.filteredCustomers.length);
-    this.paginatedCustomers = this.filteredCustomers.slice(startIndex, endIndex);
-  }
-
-  changePage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.updatePagination();
-    }
-  }
-
-  onPageSizeChange(): void {
-    this.currentPage = 1;
-    this.updatePagination();
-  }
-
-  getPageNumbers(): number[] {
-    const pages: number[] = [];
-    const totalPagesToShow = 5;
-    let startPage = Math.max(1, this.currentPage - Math.floor(totalPagesToShow / 2));
-    const endPage = Math.min(this.totalPages, startPage + totalPagesToShow - 1);
-    
-    if (endPage - startPage + 1 < totalPagesToShow) {
-      startPage = Math.max(1, endPage - totalPagesToShow + 1);
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    
-    return pages;
   }
 
   getCustomerTypeLabel(type: number): string {
