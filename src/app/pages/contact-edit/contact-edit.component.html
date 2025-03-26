@@ -1,0 +1,104 @@
+<div class="form-page">
+  <h2>Edit Contact Details</h2>
+  <p class="description">Update contact information</p>
+  
+  <!-- Error message -->
+  <div class="card" *ngIf="error">
+    <div class="alert alert-danger">
+      <i class="bi bi-exclamation-triangle-fill"></i> 
+      {{ error }}
+    </div>
+  </div>
+  
+  <!-- Loading indicator -->
+  <div class="card" *ngIf="loading">
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3">Loading contact information...</p>
+    </div>
+  </div>
+  
+  <div class="card" *ngIf="!loading && contactForm">
+    <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+      <div class="form-section">
+        <div class="form-group">
+          <label for="customercontacttype">Contact Type *</label>
+          <select id="customercontacttype" formControlName="customercontacttype" class="form-select">
+            <option value="">-- Select Type --</option>
+            <option *ngFor="let type of contactTypes" [value]="type">{{ type }}</option>
+          </select>
+          <div *ngIf="contactForm.get('customercontacttype')?.invalid && contactForm.get('customercontacttype')?.touched" class="error-message">
+            Contact type is required
+          </div>
+        </div>
+        
+        <div class="form-group full-width">
+          <label for="customercontactvalue">Contact Value *</label>
+          <input 
+            type="text" 
+            id="customercontactvalue" 
+            formControlName="customercontactvalue" 
+            class="form-control"
+            [placeholder]="contactForm.get('customercontacttype')?.value === 'EMAIL' ? 'Email address' : 
+                          contactForm.get('customercontacttype')?.value === 'PHONE' ? 'Phone number' : 
+                          'Contact value'">
+          <div *ngIf="contactForm.get('customercontactvalue')?.invalid && contactForm.get('customercontactvalue')?.touched" class="error-message">
+            Contact value is required
+          </div>
+        </div>
+        
+        <!-- Address fields - shown only when contact type is ADDRESS -->
+        <ng-container *ngIf="showAddressFields">
+          <div class="form-group full-width">
+            <label for="addr_value">Address *</label>
+            <input type="text" id="addr_value" formControlName="addr_value" class="form-control" placeholder="Full address">
+            <div *ngIf="contactForm.get('addr_value')?.invalid && contactForm.get('addr_value')?.touched" class="error-message">
+              Address is required
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="address_type_id">Address Type *</label>
+            <select id="address_type_id" formControlName="address_type_id" class="form-select">
+              <option value="">-- Select Type --</option>
+              <option *ngFor="let type of addressTypes" [value]="type">{{ type }}</option>
+            </select>
+            <div *ngIf="contactForm.get('address_type_id')?.invalid && contactForm.get('address_type_id')?.touched" class="error-message">
+              Address type is required
+            </div>
+          </div>
+        </ng-container>
+        
+        <div class="form-group">
+          <label for="effectivedt">Effective Date *</label>
+          <input type="date" id="effectivedt" formControlName="effectivedt" class="form-control">
+          <div *ngIf="contactForm.get('effectivedt')?.invalid && contactForm.get('effectivedt')?.touched" class="error-message">
+            Effective date is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="enddate">End Date</label>
+          <input type="date" id="enddate" formControlName="enddate" class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <label for="cust_efctv_dt">Customer Effective Date</label>
+          <input type="date" id="cust_efctv_dt" formControlName="cust_efctv_dt" class="form-control">
+        </div>
+      </div>
+      
+      <div class="action-buttons">
+        <div class="btn-group">
+          <button type="button" class="btn btn-secondary" routerLink="/contact-list">Cancel</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="resetForm()">Reset</button>
+        </div>
+        <button type="submit" class="btn btn-primary" [disabled]="contactForm.invalid || loading">
+          Update Contact
+        </button>
+      </div>
+    </form>
+  </div>
+</div> 

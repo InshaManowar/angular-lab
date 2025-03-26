@@ -58,83 +58,109 @@ h1 {
 }
 
 .app-container {
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
 header {
-  background-color: #ffffff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 15px 30px;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+  background-color: #3f51b5;
+  color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1200px;
+  padding: 0 20px;
+  max-width: 1400px;
   margin: 0 auto;
+  height: 60px;
 }
 
 .logo h1 {
   margin: 0;
   font-size: 1.5rem;
-  color: #0d6efd;
-  font-weight: 700;
 }
 
-nav ul {
+header nav ul {
   display: flex;
+  gap: 20px;
   list-style: none;
   margin: 0;
   padding: 0;
-  gap: 20px;
 }
 
-nav a {
-  color: #495057;
+header nav a {
+  color: white;
   text-decoration: none;
-  font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 6px;
-  transition: all 0.2s;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
 }
 
-nav a:hover {
-  color: #0d6efd;
-  background-color: #f1f8ff;
+header nav a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-nav a.active {
-  color: #0d6efd;
-  background-color: #f1f8ff;
+header nav a.active {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 main {
   flex: 1;
-  background-color: #f8f9fa;
+  padding: 0;
+  background-color: #f5f5f5;
+}
+
+.content-container {
+  display: flex;
+  min-height: calc(100vh - 60px - 50px); /* viewport height minus header and footer */
+}
+
+app-nav-sidebar {
+  width: 250px;
+  min-width: 250px;
+  border-right: 1px solid #e0e0e0;
+  background-color: #fff;
+}
+
+.main-content {
+  flex: 1;
+  padding: 0;
 }
 
 footer {
-  background-color: #343a40;
-  color: #f8f9fa;
-  padding: 20px;
+  background-color: #f5f5f5;
+  border-top: 1px solid #e0e0e0;
+  padding: 15px 20px;
   text-align: center;
-  font-size: 0.9rem;
+  color: #666;
+  height: 50px;
 }
 
+/* Responsive layout */
 @media (max-width: 768px) {
   .header-content {
     flex-direction: column;
-    gap: 15px;
+    height: auto;
+    padding: 10px 20px;
   }
   
-  nav ul {
+  header nav ul {
+    margin-top: 10px;
     flex-wrap: wrap;
     justify-content: center;
+  }
+  
+  .content-container {
+    flex-direction: column;
+  }
+  
+  app-nav-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
   }
 }

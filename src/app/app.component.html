@@ -9,13 +9,20 @@
           <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
           <li><a routerLink="/customer-list" routerLinkActive="active">Customers</a></li>
           <li><a routerLink="/customer-address" routerLinkActive="active">Add Customer</a></li>
+          <li><a routerLink="/contact-list" routerLinkActive="active">Contacts</a></li>
+          <li><a routerLink="/contact-add" routerLinkActive="active">Add Contact</a></li>
         </ul>
       </nav>
     </div>
   </header>
   
   <main>
-    <router-outlet></router-outlet>
+    <div class="content-container">
+      <app-nav-sidebar></app-nav-sidebar>
+      <div class="main-content">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
   </main>
   
   <footer>
