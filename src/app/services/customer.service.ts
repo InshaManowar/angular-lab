@@ -50,16 +50,30 @@ export class CustomerService {
         // Check if response is an array or an object with content property
         let customers = Array.isArray(response) ? response : (response.content || []);
         
-        // Ensure each customer has the required properties
-        customers = customers.map((customer: any) => {
-          // If cust_num is missing, try to get it from id property
-          if (customer.cust_num === undefined && customer.id !== undefined) {
-            customer.cust_num = customer.id;
+        // Generate a unique ID for each customer if it doesn't have one
+        customers = customers.map((customer: any, index: number) => {
+          // If cust_num is missing, generate a unique ID
+          if (customer.cust_num === undefined) {
+            // Try to create a deterministic ID based on other fields if possible
+            const emailPart = customer.cust_email ? 
+                              customer.cust_email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '') : '';
+            const namePart = customer.cust_full_name ? 
+                              customer.cust_full_name.substring(0, 3).replace(/[^a-zA-Z0-9]/g, '') : '';
+            
+            // Use array index + 1 as a base for the ID to ensure uniqueness
+            customer.cust_num = (index + 1);
+            
+            // If we have email or name, use them to create a more meaningful ID
+            if (emailPart || namePart) {
+              customer.display_id = `${namePart}${emailPart}${index + 1}`;
+            }
+            
+            console.log(`Generated ID for customer "${customer.cust_full_name}": ${customer.cust_num}`);
           }
           return customer;
         });
         
-        console.log('Processed customer data:', customers);
+        console.log('Processed customer data with IDs:', customers);
         return customers;
       }),
       tap(customers => {

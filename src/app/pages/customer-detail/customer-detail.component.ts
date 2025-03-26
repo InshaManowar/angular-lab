@@ -93,6 +93,19 @@ export class CustomerDetailComponent implements OnInit {
           
           console.log('========================================');
           
+          // Check if customer has essential fields
+          if (!data.cust_full_name && !data.cust_type) {
+            console.warn('Customer data is missing essential fields');
+            this.error = `Customer data for ID ${this.customerId} is incomplete or corrupted.`;
+            return;
+          }
+          
+          // Set cust_num from ID if it's missing (to help with edit/delete functionality)
+          if (data.cust_num === undefined) {
+            console.log('Setting customer ID from route parameter:', this.customerId);
+            (data as any).cust_num = this.customerId;
+          }
+          
           this.customer = data;
           this.error = null;
         } else {

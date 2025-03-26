@@ -53,7 +53,12 @@
       </thead>
       <tbody>
         <tr *ngFor="let customer of filteredCustomers">
-          <td>{{ customer.cust_num }} <small *ngIf="customer.cust_num === undefined">(undefined)</small></td>
+          <td>
+            {{ customer.cust_num || '-' }}
+            <small *ngIf="customer.cust_num === undefined">
+              (Type: {{ customer.cust_type }})
+            </small>
+          </td>
           <td>{{ customer.cust_full_name }}</td>
           <td>{{ getCustomerTypeLabel(customer.cust_type) }}</td>
           <td>{{ customer.cust_email }}</td>
