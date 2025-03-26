@@ -52,10 +52,22 @@ export class CustomerService {
         
         // Ensure each customer has the required properties
         customers = customers.map((customer: any) => {
-          // If cust_num is missing, try to get it from id property
+          // Log the original customer data
+          console.log('Original customer data:', {...customer});
+          
+          // If we don't have cust_num but have a Spring ID, use it as fallback
           if (customer.cust_num === undefined && customer.id !== undefined) {
+            console.log(`Using Spring-generated ID as fallback for customer: ${customer.id}`);
             customer.cust_num = customer.id;
           }
+          
+          // Make sure we always have cust_num
+          if (customer.cust_num === undefined) {
+            console.warn('Customer missing cust_num, generating a temporary one');
+            // Generate a random number as a temporary customer number
+            customer.cust_num = Math.floor(Math.random() * 10000) + 1;
+          }
+          
           return customer;
         });
         
@@ -113,10 +125,19 @@ export class CustomerService {
           // Log the extracted customer data
           console.log('Extracted customer data:', customerData);
           
-          // Check for ID fields and ensure cust_num is set
-          const idFields = ['id', 'customerId', 'customer_id', '_id'];
-          if (!customerData.cust_num) {
-            // Try to get ID from alternative fields
+          // Check if we already have cust_num
+          if (customerData.cust_num !== undefined) {
+            console.log('Using existing cust_num:', customerData.cust_num);
+          }
+          // If we don't have cust_num but have Spring ID, use it as fallback
+          else if (customerData.id !== undefined) {
+            console.log('Setting cust_num from Spring ID as fallback:', customerData.id);
+            customerData.cust_num = customerData.id;
+          }
+          // If we have neither, check other possible ID fields
+          else {
+            // Check for other possible ID fields
+            const idFields = ['customerId', 'customer_id', '_id'];
             for (const field of idFields) {
               if (customerData[field] !== undefined) {
                 console.log(`Using ${field} as cust_num:`, customerData[field]);

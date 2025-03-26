@@ -116,8 +116,16 @@ export class CustomerDetailComponent implements OnInit {
   }
 
   deleteCustomer(): void {
+    if (!this.customer) {
+      console.error('Cannot delete: No customer data available');
+      return;
+    }
+    
+    // Use cust_num as the primary identifier
+    const deleteId = this.customer.cust_num || this.customerId;
+    
     if (confirm('Are you sure you want to delete this customer?')) {
-      this.customerService.deleteCustomer(this.customerId).subscribe({
+      this.customerService.deleteCustomer(deleteId).subscribe({
         next: () => {
           this.router.navigate(['/customer-list']);
         },
@@ -135,5 +143,9 @@ export class CustomerDetailComponent implements OnInit {
       case 'pending': return 'status-pending';
       default: return '';
     }
+  }
+
+  goBack() {
+    this.router.navigate(['/customer-list']);
   }
 }
