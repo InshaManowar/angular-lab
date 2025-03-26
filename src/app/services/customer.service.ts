@@ -87,9 +87,29 @@ export class CustomerService {
       return throwError(() => new Error('Invalid customer ID'));
     }
     
-    return this.http.get<CustomerData>(`${this.apiUrl}/${id}`).pipe(
+    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
       tap(response => {
-        console.log('Customer detail API response:', response);
+        console.log('===== RAW CUSTOMER API RESPONSE =====');
+        console.log('Full API response:', response);
+        console.log('Response type:', typeof response);
+        
+        if (response) {
+          console.log('Response properties:', Object.keys(response));
+          
+          // Check for nested data structures
+          if (response.data) {
+            console.log('Found nested data property:', response.data);
+          }
+          
+          // Check for common ID fields
+          const idFields = ['cust_num', 'id', 'customerId', 'customer_id', '_id'];
+          idFields.forEach(field => {
+            if (response[field] !== undefined) {
+              console.log(`Found ID in field "${field}":`, response[field]);
+            }
+          });
+        }
+        console.log('==================================');
         
         // Check if the response has the expected properties
         if (!response || !response.cust_num) {
@@ -104,6 +124,8 @@ export class CustomerService {
       }),
       catchError(error => {
         console.error(`Error fetching customer with ID ${id}:`, error);
+        console.error('API error response:', error.error);
+        console.error('Status code:', error.status);
         return throwError(() => new Error('Failed to load customer details'));
       })
     );

@@ -89,6 +89,26 @@ export class CustomerListComponent implements OnInit {
     this.router.navigate(['/customer-edit', id]);
   }
 
+  navigateToCustomerDetail(customer: any): void {
+    // Log the entire customer object to inspect all fields
+    console.log('Customer object being passed to detail view:', customer);
+    console.log('Customer object properties:', Object.keys(customer));
+    console.log('Customer ID (cust_num):', customer.cust_num);
+    console.log('Customer ID type:', typeof customer.cust_num);
+    
+    // Check for alternative ID fields that might be available
+    if (customer.id !== undefined) {
+      console.log('Alternative ID found (id):', customer.id);
+    }
+    
+    if (!customer || customer.cust_num === undefined) {
+      console.error('Cannot navigate to customer detail: Invalid customer ID');
+      return;
+    }
+    
+    this.router.navigate(['/customer-detail', customer.cust_num]);
+  }
+
   filterCustomers(): void {
     if (!this.searchTerm) {
       this.filteredCustomers = [...this.customers];

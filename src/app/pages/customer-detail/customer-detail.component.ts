@@ -69,14 +69,28 @@ export class CustomerDetailComponent implements OnInit {
         finalize(() => this.loading = false),
         catchError(err => {
           this.error = `Failed to load customer: ${err.message}`;
+          console.error('API error details:', err);
           return of(null);
         })
       )
       .subscribe((data) => {
         if (data) {
-          console.log('Customer data received:', data);
+          // Print detailed information about the API response
+          console.log('===== CUSTOMER DETAIL API RESPONSE =====');
+          console.log('Raw customer data received:', data);
+          console.log('All available properties:', Object.keys(data));
+          
+          // Log each property individually
+          Object.entries(data).forEach(([key, value]) => {
+            console.log(`${key}:`, value, `(type: ${typeof value})`);
+          });
+          
+          console.log('========================================');
+          
           this.customer = data;
           this.error = null;
+        } else {
+          console.error('No data received from API for customer ID:', this.customerId);
         }
       });
   }
