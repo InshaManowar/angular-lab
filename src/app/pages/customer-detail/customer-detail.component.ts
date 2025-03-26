@@ -27,16 +27,31 @@ export class CustomerDetailComponent implements OnInit {
   ngOnInit(): void {
     this.loading = true;
     this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id && !isNaN(Number(id))) {
-        this.customerId = Number(id);
-        console.log('Loading customer with ID:', this.customerId);
-        this.loadCustomerData();
-      } else {
-        this.error = "Invalid customer ID";
+      const idParam = params.get('id');
+      
+      console.log('Raw ID parameter:', idParam);
+      
+      if (idParam === null || idParam === undefined) {
+        this.error = "Missing customer ID parameter";
         this.loading = false;
-        console.error('Invalid customer ID parameter:', id);
+        console.error('Missing ID parameter');
+        return;
       }
+      
+      // Try to convert to number and check if it's valid
+      const id = Number(idParam);
+      console.log('Converted ID:', id, 'Is NaN:', isNaN(id));
+      
+      if (isNaN(id)) {
+        this.error = `Invalid customer ID: "${idParam}"`;
+        this.loading = false;
+        console.error('Invalid customer ID parameter:', idParam);
+        return;
+      }
+      
+      this.customerId = id;
+      console.log('Loading customer with ID:', this.customerId);
+      this.loadCustomerData();
     });
   }
 

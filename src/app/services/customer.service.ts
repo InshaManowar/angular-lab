@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, tap, map } from 'rxjs/operators';
 
 /**
  * Customer data interface - adjusted to match the backend entity
@@ -38,10 +38,20 @@ export class CustomerService {
   getAllCustomers(): Observable<CustomerData[]> {
     const currentTime = Date.now();
     if (this.customersCache && (currentTime - this.lastFetchTime < this.CACHE_DURATION)) {
+      console.log('Using cached data:', this.customersCache);
       return of(this.customersCache);
     }
     
-    return this.http.get<CustomerData[]>(this.apiUrl).pipe(
+    return this.http.get<any>(this.apiUrl).pipe(
+      tap(response => {
+        console.log('Raw API response:', response);
+      }),
+      map(response => {
+        // Check if response is an array or an object with content property
+        let customers = Array.isArray(response) ? response : (response.content || []);
+        console.log('Processed customer data:', customers);
+        return customers;
+      }),
       tap(customers => {
         this.customersCache = customers;
         this.lastFetchTime = Date.now();

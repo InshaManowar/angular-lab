@@ -40,6 +40,12 @@ export class CustomerListComponent implements OnInit {
       )
       .subscribe({
         next: (data) => {
+          console.log('API Response Data:', data);
+          if (data && data.length > 0) {
+            console.log('First customer object:', data[0]);
+            console.log('Customer ID type:', typeof data[0].cust_num);
+            console.log('Customer ID value:', data[0].cust_num);
+          }
           this.customers = data;
           this.filteredCustomers = [...data];
         },
