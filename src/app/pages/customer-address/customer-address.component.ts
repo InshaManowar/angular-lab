@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CustomerService } from '../../services/customer.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-customer-address',
@@ -13,6 +14,8 @@ import { CustomerService } from '../../services/customer.service';
 })
 export class CustomerAddressComponent implements OnInit {
   customerForm: FormGroup;
+  loading: boolean = false;
+  error: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -23,12 +26,12 @@ export class CustomerAddressComponent implements OnInit {
       cust_type: ['', Validators.required],
       cust_full_name: ['', Validators.required],
       cust_dob: ['', Validators.required],
-      cust_status: ['', Validators.required],
+      cust_status: ['Active', Validators.required], // Default to Active
       cust_contact_num: ['', Validators.required],
       cust_mobile_num: [''],
       cust_email: ['', [Validators.required, Validators.email]],
       cust_country: ['', Validators.required],
-      cust_efctv_dt: ['', Validators.required]
+      cust_efctv_dt: [new Date().toISOString().split('T')[0], Validators.required] // Default to today
     });
   }
 
@@ -37,29 +40,66 @@ export class CustomerAddressComponent implements OnInit {
 
   onSubmit(): void {
     if (this.customerForm.valid) {
-      this.customerService.createCustomer(this.customerForm.value).subscribe(
-        response => {
-          // Navigate to customer list instead of success page
-          this.router.navigate(['/customer-list']);
-        },
-        error => {
-          console.error('Error creating customer:', error);
-        }
-      );
+      this.loading = true;
+      this.error = null;
+      
+      console.log('Submitting new customer data:', this.customerForm.value);
+      
+      this.customerService.createCustomer(this.customerForm.value)
+        .pipe(
+          finalize(() => this.loading = false)
+        )
+        .subscribe({
+          next: response => {
+            console.log('Customer created successfully, navigating to list');
+            // Navigate to customer list
+            this.router.navigate(['/customer-list']);
+          },
+          error: error => {
+            console.error('Error creating customer:', error);
+            this.error = `Failed to create customer: ${error.message || 'Unknown error'}`;
+          }
+        });
+    } else {
+      // Mark all fields as touched to show validation errors
+      Object.keys(this.customerForm.controls).forEach(key => {
+        const control = this.customerForm.get(key);
+        control?.markAsTouched();
+      });
     }
   }
 
   saveAndAddAnother(): void {
     if (this.customerForm.valid) {
-      this.customerService.createCustomer(this.customerForm.value).subscribe(
-        response => {
-          // Reset form for another entry
-          this.customerForm.reset();
-        },
-        error => {
-          console.error('Error creating customer:', error);
-        }
-      );
+      this.loading = true;
+      this.error = null;
+      
+      this.customerService.createCustomer(this.customerForm.value)
+        .pipe(
+          finalize(() => this.loading = false)
+        )
+        .subscribe({
+          next: response => {
+            console.log('Customer created successfully, form reset for another');
+            // Reset form for another entry
+            this.customerForm.reset({
+              cust_status: 'Active', // Restore default values
+              cust_efctv_dt: new Date().toISOString().split('T')[0]
+            });
+            // Show success message
+            alert('Customer created successfully!');
+          },
+          error: error => {
+            console.error('Error creating customer:', error);
+            this.error = `Failed to create customer: ${error.message || 'Unknown error'}`;
+          }
+        });
+    } else {
+      // Mark all fields as touched to show validation errors
+      Object.keys(this.customerForm.controls).forEach(key => {
+        const control = this.customerForm.get(key);
+        control?.markAsTouched();
+      });
     }
   }
 }

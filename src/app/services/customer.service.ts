@@ -153,8 +153,20 @@ export class CustomerService {
    * @returns Observable of created customer data
    */
   createCustomer(customerData: CustomerData): Observable<CustomerData> {
-    // TODO: Replace with your actual API endpoint
-    return this.http.post<CustomerData>(this.apiUrl, customerData);
+    // Clear the cache so the list will be refreshed on next load
+    this.customersCache = null;
+    
+    return this.http.post<CustomerData>(this.apiUrl, customerData).pipe(
+      tap(response => {
+        console.log('Customer created successfully:', response);
+        // Ensure the cache is invalidated
+        this.customersCache = null;
+      }),
+      catchError(error => {
+        console.error('Error creating customer:', error);
+        return throwError(() => new Error('Failed to create customer: ' + (error.message || 'Unknown error')));
+      })
+    );
   }
 
   /**
@@ -252,7 +264,19 @@ export class CustomerService {
    * @returns Observable of updated customer data
    */
   updateCustomer(id: number, customerData: CustomerData): Observable<CustomerData> {
-    // TODO: Replace with your actual API endpoint
-    return this.http.put<CustomerData>(`${this.apiUrl}/${id}`, customerData);
+    // Clear the cache so the list will be refreshed on next load
+    this.customersCache = null;
+    
+    return this.http.put<CustomerData>(`${this.apiUrl}/${id}`, customerData).pipe(
+      tap(response => {
+        console.log('Customer updated successfully:', response);
+        // Ensure the cache is invalidated
+        this.customersCache = null;
+      }),
+      catchError(error => {
+        console.error('Error updating customer:', error);
+        return throwError(() => new Error('Failed to update customer: ' + (error.message || 'Unknown error')));
+      })
+    );
   }
 } 
