@@ -31,16 +31,39 @@ export class CustomerEditComponent implements OnInit {
     this.initForm();
     
     this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id && !isNaN(Number(id))) {
-        this.customerId = Number(id);
-        console.log('Editing customer with ID:', this.customerId);
-        this.loadCustomerData();
-      } else {
-        this.error = "Invalid customer ID";
+      const idParam = params.get('id');
+      
+      console.log('Raw ID parameter for edit:', idParam);
+      
+      if (idParam === null || idParam === undefined) {
+        this.error = "Missing customer ID parameter";
         this.loading = false;
-        console.error('Invalid customer ID parameter:', id);
+        console.error('Missing ID parameter for edit');
+        return;
       }
+      
+      // Sometimes ID might be "undefined" as a string
+      if (idParam === "undefined" || idParam === "null") {
+        this.error = "Invalid customer ID: The ID value is undefined";
+        this.loading = false;
+        console.error('ID parameter is "undefined" or "null" string');
+        return;
+      }
+      
+      // Try to convert to number and check if it's valid
+      const id = Number(idParam);
+      console.log('Converted ID for edit:', id, 'Is NaN:', isNaN(id));
+      
+      if (isNaN(id)) {
+        this.error = `Invalid customer ID: "${idParam}"`;
+        this.loading = false;
+        console.error('Invalid customer ID parameter for edit:', idParam);
+        return;
+      }
+      
+      this.customerId = id;
+      console.log('Loading customer with ID for edit:', this.customerId);
+      this.loadCustomerData();
     });
   }
 
@@ -67,12 +90,28 @@ export class CustomerEditComponent implements OnInit {
         finalize(() => this.loading = false),
         catchError(err => {
           this.error = `Failed to load customer: ${err.message}`;
+          console.error('Error loading customer for edit:', err);
+          
+          // If we get a 404 Not Found, the customer might not exist
+          if (err.status === 404) {
+            this.error = `Customer with ID ${this.customerId} not found. The customer may have been deleted.`;
+          }
+          
           return of(null);
         })
       )
       .subscribe(customer => {
         if (customer) {
-          console.log('Customer data for edit:', customer);
+          console.log('===== CUSTOMER DATA FOR EDIT =====');
+          console.log('Complete customer data:', customer);
+          console.log('Customer properties:', Object.keys(customer));
+          
+          // Ensure customer has an ID
+          if (!customer.cust_num) {
+            console.warn('Customer data missing cust_num, using route parameter as ID');
+            customer.cust_num = this.customerId;
+          }
+          
           this.originalCustomer = { ...customer };
           
           // Format dates for the date input fields
@@ -97,6 +136,10 @@ export class CustomerEditComponent implements OnInit {
           
           // Log the form values after patching to verify
           console.log('Form values after patching:', this.customerForm.value);
+          console.log('===================================');
+        } else {
+          console.error('No customer data received for ID:', this.customerId);
+          this.error = `No customer data available for ID: ${this.customerId}`;
         }
       });
   }
@@ -134,13 +177,34 @@ export class CustomerEditComponent implements OnInit {
 
   onSubmit(): void {
     if (this.customerForm.valid) {
-      this.customerService.updateCustomer(this.customerId, this.customerForm.value).subscribe({
+      console.log('Submitting form data for customer ID:', this.customerId);
+      console.log('Form data to submit:', this.customerForm.value);
+      
+      // Create a copy of the form data with the ID included
+      const customerData = {
+        ...this.customerForm.value,
+        cust_num: this.customerId // Ensure the ID is included in the data
+      };
+      
+      this.loading = true;
+      this.customerService.updateCustomer(this.customerId, customerData).subscribe({
         next: (response) => {
+          console.log('Customer updated successfully:', response);
+          this.loading = false;
           this.router.navigate(['/customer-detail', this.customerId]);
         },
         error: (error) => {
           console.error('Error updating customer:', error);
+          this.loading = false;
+          this.error = `Failed to update customer: ${error.message || 'Unknown error'}`;
         }
+      });
+    } else {
+      console.error('Form is invalid, cannot submit');
+      // Mark all fields as touched to show validation errors
+      Object.keys(this.customerForm.controls).forEach(key => {
+        const control = this.customerForm.get(key);
+        control?.markAsTouched();
       });
     }
   }

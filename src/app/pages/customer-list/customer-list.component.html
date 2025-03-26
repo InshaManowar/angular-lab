@@ -53,12 +53,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let customer of filteredCustomers">
-          <td>
-            {{ customer.cust_num || '-' }}
-            <small *ngIf="customer.cust_num === undefined">
-              (Type: {{ customer.cust_type }})
-            </small>
-          </td>
+          <td>{{ customer.cust_num }} <small *ngIf="customer.cust_num === undefined">(undefined)</small></td>
           <td>{{ customer.cust_full_name }}</td>
           <td>{{ getCustomerTypeLabel(customer.cust_type) }}</td>
           <td>{{ customer.cust_email }}</td>
@@ -71,10 +66,10 @@
             <button class="btn btn-info btn-sm" (click)="navigateToCustomerDetail(customer)">
               <i class="bi bi-eye"></i> View
             </button>
-            <button class="btn btn-primary btn-sm" (click)="editCustomer(customer.cust_num, $event)">
+            <button class="btn btn-primary btn-sm" (click)="navigateToCustomerEdit(customer)">
               <i class="bi bi-pencil"></i> Edit
             </button>
-            <button class="btn btn-danger btn-sm" (click)="deleteCustomer(customer.cust_num)">
+            <button class="btn btn-danger btn-sm" (click)="deleteCustomerObject(customer)">
               <i class="bi bi-trash"></i> Delete
             </button>
           </td>

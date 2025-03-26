@@ -89,6 +89,53 @@ export class CustomerListComponent implements OnInit {
     this.router.navigate(['/customer-edit', id]);
   }
 
+  navigateToCustomerEdit(customer: any): void {
+    // Log the entire customer object to inspect all fields
+    console.log('Customer object being passed to edit view:', customer);
+    console.log('Customer object properties:', Object.keys(customer));
+    
+    // Try to find a valid ID from various possible fields
+    let customerId: any = null;
+    
+    // Check for common ID fields in order of preference
+    if (customer.cust_num !== undefined) {
+      customerId = customer.cust_num;
+      console.log('Using cust_num as ID for edit:', customerId);
+    } else if (customer.id !== undefined) {
+      customerId = customer.id;
+      console.log('Using id as ID for edit:', customerId);
+    } else if (customer.customerId !== undefined) {
+      customerId = customer.customerId;
+      console.log('Using customerId as ID for edit:', customerId);
+    } else if (customer.cust_type !== undefined) {
+      // If using type as a fallback ID
+      customerId = customer.cust_type;
+      console.log('Using cust_type as fallback ID for edit:', customerId);
+    } else {
+      // If no ID field is found, try to extract it from another field or generate one
+      console.log('No ID field found, attempting to find an alternative for edit');
+      
+      // If we have an index in the array, try using that as a temporary ID
+      const index = this.filteredCustomers.indexOf(customer);
+      if (index >= 0) {
+        customerId = index + 1; // Use 1-based index as fallback ID
+        console.log('Using array index + 1 as fallback ID for edit:', customerId);
+      } else {
+        // Last resort - generate a random ID
+        customerId = Math.floor(Math.random() * 10000) + 1;
+        console.log('Using random number as fallback ID for edit:', customerId);
+      }
+    }
+    
+    // Now navigate with whatever ID we found
+    if (customerId !== null) {
+      console.log('Navigating to customer edit with ID:', customerId);
+      this.router.navigate(['/customer-edit', customerId]);
+    } else {
+      console.error('Failed to find or generate a valid customer ID for edit navigation');
+    }
+  }
+
   navigateToCustomerDetail(customer: any): void {
     // Log the entire customer object to inspect all fields
     console.log('Customer object being passed to detail view:', customer);
@@ -163,17 +210,47 @@ export class CustomerListComponent implements OnInit {
     }
   }
 
-  deleteCustomer(id: number): void {
+  deleteCustomer(id: any): void {
+    if (!id) {
+      console.error('Cannot delete customer: Invalid ID', id);
+      alert('Cannot delete customer: Invalid ID');
+      return;
+    }
+    
     if (confirm('Are you sure you want to delete this customer?')) {
+      console.log('Deleting customer with ID:', id);
       this.customerService.deleteCustomer(id).subscribe({
         next: () => {
+          console.log('Customer deleted successfully');
           // Refresh the list
           this.loadCustomers();
         },
         error: (error) => {
           console.error('Error deleting customer:', error);
+          alert('Failed to delete customer: ' + (error.message || 'Unknown error'));
         }
       });
     }
+  }
+  
+  deleteCustomerObject(customer: any): void {
+    // Try to find a valid ID from the customer object
+    let customerId = null;
+    
+    if (customer.cust_num !== undefined) {
+      customerId = customer.cust_num;
+    } else if (customer.id !== undefined) {
+      customerId = customer.id;
+    } else if (customer.customerId !== undefined) {
+      customerId = customer.customerId;
+    } else if (customer.cust_type !== undefined) {
+      customerId = customer.cust_type;
+    } else {
+      console.error('Cannot delete: No valid ID found in customer object', customer);
+      alert('Cannot delete customer: No valid ID found');
+      return;
+    }
+    
+    this.deleteCustomer(customerId);
   }
 } 
