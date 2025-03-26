@@ -183,11 +183,8 @@ export class CustomerEditComponent implements OnInit {
       // Create a copy of the form data with the ID included
       const customerData = {
         ...this.customerForm.value,
-        cust_num: this.customerId // Ensure the cust_num is included in the data
+        cust_num: this.customerId // Ensure the ID is included in the data
       };
-      
-      // Log the final data being sent to the API
-      console.log('Final customer data being sent to API:', customerData);
       
       this.loading = true;
       this.customerService.updateCustomer(this.customerId, customerData).subscribe({
