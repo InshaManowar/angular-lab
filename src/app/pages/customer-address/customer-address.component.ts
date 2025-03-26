@@ -22,7 +22,12 @@ export class CustomerAddressComponent implements OnInit {
     private router: Router,
     private customerService: CustomerService
   ) {
+    // Generate a unique cust_num (starting from 15) for the new customer
+    const timestamp = Date.now();
+    const generatedId = 15 + (timestamp % 1000);
+    
     this.customerForm = this.fb.group({
+      cust_num: [generatedId], // Add cust_num to the form with a generated value
       cust_type: ['', Validators.required],
       cust_full_name: ['', Validators.required],
       cust_dob: ['', Validators.required],
@@ -33,6 +38,8 @@ export class CustomerAddressComponent implements OnInit {
       cust_country: ['', Validators.required],
       cust_efctv_dt: [new Date().toISOString().split('T')[0], Validators.required] // Default to today
     });
+    
+    console.log('Generated cust_num for new customer form:', generatedId);
   }
 
   ngOnInit(): void {

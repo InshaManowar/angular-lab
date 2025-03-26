@@ -50,11 +50,12 @@ export class CustomerService {
         // Check if response is an array or an object with content property
         let customers = Array.isArray(response) ? response : (response.content || []);
         
-        // Ensure each customer has the required properties
-        customers = customers.map((customer: any) => {
-          // If cust_num is missing, try to get it from id property
-          if (customer.cust_num === undefined && customer.id !== undefined) {
-            customer.cust_num = customer.id;
+        // Ensure each customer has a cust_num
+        customers = customers.map((customer: any, index: number) => {
+          // If cust_num is missing, assign a value starting from 15
+          if (customer.cust_num === undefined) {
+            customer.cust_num = 15 + index; // Start from 15 and increment for each customer
+            console.log(`Assigned cust_num ${customer.cust_num} to customer:`, customer.cust_full_name);
           }
           return customer;
         });
@@ -110,30 +111,15 @@ export class CustomerService {
             customerData = response.content;
           }
           
-          // Log the extracted customer data
-          console.log('Extracted customer data:', customerData);
-          
-          // Check for ID fields and ensure cust_num is set
-          const idFields = ['id', 'customerId', 'customer_id', '_id'];
+          // Set cust_num from the request ID if it's missing
           if (!customerData.cust_num) {
-            // Try to get ID from alternative fields
-            for (const field of idFields) {
-              if (customerData[field] !== undefined) {
-                console.log(`Using ${field} as cust_num:`, customerData[field]);
-                customerData.cust_num = customerData[field];
-                break;
-              }
-            }
-            
-            // If we still don't have a cust_num, use the ID from the request
-            if (!customerData.cust_num) {
-              console.log('Setting cust_num from request ID:', id);
-              customerData.cust_num = id;
-            }
+            console.log('Setting cust_num from request ID:', id);
+            customerData.cust_num = id;
           }
+          
+          console.log('Final customer data being returned:', customerData);
         }
         
-        console.log('Final customer data being returned:', customerData);
         console.log('==================================');
         
         return customerData;
@@ -155,6 +141,14 @@ export class CustomerService {
   createCustomer(customerData: CustomerData): Observable<CustomerData> {
     // Clear the cache so the list will be refreshed on next load
     this.customersCache = null;
+    
+    // Get the current timestamp as a unique identifier if cust_num is not set
+    if (customerData.cust_num === undefined) {
+      // Generate a number starting from 15 plus the current timestamp's last 3 digits
+      const timestamp = Date.now();
+      customerData.cust_num = 15 + (timestamp % 1000);
+      console.log('Generated cust_num for new customer:', customerData.cust_num);
+    }
     
     return this.http.post<CustomerData>(this.apiUrl, customerData).pipe(
       tap(response => {
