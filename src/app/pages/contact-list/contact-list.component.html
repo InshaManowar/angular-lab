@@ -54,22 +54,25 @@
       </thead>
       <tbody>
         <tr *ngFor="let contact of filteredContacts">
-          <td>{{ contact.customeridentifier }}</td>
-          <td>{{ contact.customercontacttype }}</td>
-          <td>{{ contact.customercontactvalue }}</td>
+          <td>{{ contact.customeridentifier || contact.contactid }}</td>
+          <td>{{ contact.customercontacttype || contact.contacttype }}</td>
+          <td>{{ contact.customercontactvalue || contact.contactvalue }}</td>
           <td>
-            <span *ngIf="contact.addr_value">{{ contact.addr_value }} ({{ contact.address_type_id }})</span>
-            <span *ngIf="!contact.addr_value">N/A</span>
+            <span *ngIf="contact.addr_value || contact.address">
+              {{ contact.addr_value || contact.address }}
+              <span *ngIf="contact.address_type_id">({{ contact.address_type_id }})</span>
+            </span>
+            <span *ngIf="!contact.addr_value && !contact.address">N/A</span>
           </td>
-          <td>{{ contact.effectivedt | date }}</td>
+          <td>{{ (contact.effectivedt || contact.effectivedate) | date }}</td>
           <td>{{ contact.enddate ? (contact.enddate | date) : 'N/A' }}</td>
           <td class="actions">
-            <button class="btn btn-info btn-sm" (click)="navigateToContactDetail(contact)">
+            <a class="btn btn-info btn-sm" [routerLink]="['/contact-detail', contact.customeridentifier || contact.contactid]">
               <i class="bi bi-eye"></i> View
-            </button>
-            <button class="btn btn-primary btn-sm" (click)="navigateToContactEdit(contact)">
+            </a>
+            <a class="btn btn-primary btn-sm" [routerLink]="['/contact-edit', contact.customeridentifier || contact.contactid]">
               <i class="bi bi-pencil"></i> Edit
-            </button>
+            </a>
           </td>
         </tr>
         <tr *ngIf="filteredContacts.length === 0">

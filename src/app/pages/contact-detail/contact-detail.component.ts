@@ -17,6 +17,7 @@ export class ContactDetailComponent implements OnInit {
   contactId!: number;
   loading: boolean = false;
   error: string | null = null;
+  errorMessage: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -25,70 +26,66 @@ export class ContactDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loading = true;
-    this.route.paramMap.subscribe(params => {
-      const idParam = params.get('id');
-      
-      console.log('Raw ID parameter:', idParam);
-      
-      if (idParam === null || idParam === undefined) {
-        this.error = "Missing contact ID parameter";
-        this.loading = false;
-        console.error('Missing ID parameter');
-        return;
-      }
-      
-      // Sometimes ID might be "undefined" as a string
-      if (idParam === "undefined" || idParam === "null") {
-        this.error = "Invalid contact ID: The ID value is undefined";
-        this.loading = false;
-        console.error('ID parameter is "undefined" or "null" string');
-        return;
-      }
-      
-      // Try to convert to number and check if it's valid
-      const id = Number(idParam);
-      console.log('Converted ID:', id, 'Is NaN:', isNaN(id));
-      
-      if (isNaN(id)) {
-        this.error = `Invalid contact ID: "${idParam}"`;
-        this.loading = false;
-        console.error('Invalid contact ID parameter:', idParam);
-        return;
-      }
-      
-      this.contactId = id;
-      console.log('Loading contact with ID:', this.contactId);
-      this.loadContactData();
-    });
-  }
-
-  loadContactData(): void {
-    this.contactService.getContactById(this.contactId)
-      .pipe(
-        finalize(() => this.loading = false),
-        catchError(err => {
-          this.error = `Failed to load contact: ${err.message}`;
-          console.error('API error details:', err);
+    console.log('ContactDetailComponent initialized');
+    this.route.paramMap.subscribe(
+      params => {
+        console.log('Route params:', params);
+        const idParam = params.get('id');
+        console.log('ID from route params:', idParam);
+        
+        if (idParam) {
+          // Convert to number and check validity
+          this.contactId = +idParam;
           
-          // If we get a 404 Not Found, the contact might not exist
-          if (err.status === 404) {
-            this.error = `Contact with ID ${this.contactId} not found. The contact may have been deleted.`;
+          if (isNaN(this.contactId) || this.contactId <= 0) {
+            console.error('Invalid ID parameter:', idParam);
+            this.errorMessage = 'Invalid contact ID provided';
+            this.loading = false;
+            return;
           }
           
-          return of(null);
-        })
-      )
-      .subscribe((data) => {
-        if (data) {
-          console.log('Raw contact data received:', data);
-          this.contact = data;
-          this.error = null;
+          console.log(`Loading contact details for ID: ${this.contactId}`);
+          this.loadContactDetails();
         } else {
-          console.error('No data received from API for contact ID:', this.contactId);
-          this.error = `No contact data available for ID: ${this.contactId}`;
+          console.error('No ID parameter found in route');
+          this.errorMessage = 'No contact ID provided';
+          this.loading = false;
         }
-      });
+      },
+      error => {
+        console.error('Error extracting route parameters:', error);
+        this.errorMessage = 'Error loading contact details';
+        this.loading = false;
+      }
+    );
+  }
+
+  loadContactDetails(): void {
+    this.loading = true;
+    console.log(`Calling contactService.getContactById(${this.contactId})`);
+    
+    this.contactService.getContactById(this.contactId).subscribe({
+      next: (data) => {
+        console.log('Contact data received:', data);
+        this.contact = data;
+        this.loading = false;
+        
+        if (!this.contact) {
+          console.error('Contact data is null or undefined');
+          this.errorMessage = 'Contact details not found';
+        } else if (typeof this.contact !== 'object') {
+          console.error('Unexpected contact data type:', typeof this.contact);
+          this.errorMessage = 'Invalid contact data format';
+        } else {
+          console.log('Contact loaded successfully:', this.contact);
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching contact details:', error);
+        this.errorMessage = error.message || 'Failed to load contact details';
+        this.loading = false;
+      }
+    });
   }
 
   editContact(): void {
@@ -96,11 +93,25 @@ export class ContactDetailComponent implements OnInit {
     this.router.navigate(['contact-edit', this.contactId]);
   }
 
-  getContactTypeLabel(type?: string): string {
-    return this.contactService.getContactTypeLabel(type || '');
+  getContactTypeLabel(typeCode: string | number): string {
+    if (typeCode === 'EMAIL' || typeCode === 1) {
+      return 'Email';
+    } else if (typeCode === 'PHONE' || typeCode === 2) {
+      return 'Phone';
+    } else if (typeCode === 'ADDRESS' || typeCode === 3) {
+      return 'Address';
+    } else {
+      return typeCode?.toString() || 'Unknown';
+    }
   }
 
-  getAddressTypeLabel(type?: string): string {
-    return this.contactService.getAddressTypeLabel(type || '');
+  getAddressTypeLabel(typeId: number): string {
+    switch (typeId) {
+      case 1: return 'Home';
+      case 2: return 'Business';
+      case 3: return 'Billing';
+      case 4: return 'Shipping';
+      default: return 'Other';
+    }
   }
 } 

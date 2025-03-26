@@ -3,89 +3,70 @@
   <p class="description">View contact information</p>
   
   <!-- Loading indicator -->
-  <div class="card" *ngIf="loading">
-    <div class="text-center py-5">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-      <p class="mt-3">Loading contact information...</p>
+  <div *ngIf="loading" class="d-flex justify-content-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
     </div>
   </div>
   
   <!-- Error message -->
-  <div class="card" *ngIf="error && !loading">
-    <div class="alert alert-danger">
-      <i class="bi bi-exclamation-triangle-fill"></i> 
-      {{ error }}
-    </div>
-    <div class="text-center mt-3">
-      <button class="btn btn-primary" routerLink="/contact-list">
-        <i class="bi bi-arrow-left"></i> Back to Contact List
-      </button>
+  <div *ngIf="errorMessage" class="alert alert-danger mt-3">
+    {{ errorMessage }}
+    <div class="mt-2">
+      <a [routerLink]="['/contact-list']" class="btn btn-secondary">Back to Contact List</a>
     </div>
   </div>
   
-  <!-- Contact data -->
-  <div class="card" *ngIf="contact && !loading && !error">
-    <div class="contact-header">
-      <div class="contact-title">
-        <h3>Contact: {{ contact.customercontactvalue }}</h3>
-        <span class="contact-id">ID: {{ contact.customeridentifier }}</span>
-      </div>
-      <span class="contact-type">{{ getContactTypeLabel(contact.customercontacttype) }}</span>
+  <!-- Contact details when loaded -->
+  <div *ngIf="contact && !loading && !errorMessage" class="card mt-4">
+    <div class="card-header bg-primary text-white">
+      <h2>Contact Details</h2>
     </div>
-    
-    <hr>
-    
-    <div class="detail-section">
-      <div class="detail-item">
-        <label>Contact Type</label>
-        <span>{{ getContactTypeLabel(contact.customercontacttype) }}</span>
+    <div class="card-body">
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">ID:</div>
+        <div class="col-md-9">{{ contact.customeridentifier || contact.contactid }}</div>
       </div>
-      
-      <div class="detail-item">
-        <label>Contact Value</label>
-        <span>{{ contact.customercontactvalue }}</span>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">Contact Type:</div>
+        <div class="col-md-9">{{ contact.contacttype || contact.customercontacttype }}</div>
       </div>
-      
-      <!-- Show address details only if available -->
-      <ng-container *ngIf="contact.addr_value">
-        <div class="detail-item">
-          <label>Address</label>
-          <span>{{ contact.addr_value }}</span>
-        </div>
-        
-        <div class="detail-item">
-          <label>Address Type</label>
-          <span>{{ getAddressTypeLabel(contact.address_type_id) }}</span>
-        </div>
-      </ng-container>
-      
-      <div class="detail-item">
-        <label>Effective Date</label>
-        <span>{{ contact.effectivedt | date }}</span>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">Contact Value:</div>
+        <div class="col-md-9">{{ contact.contactvalue || contact.customercontactvalue }}</div>
       </div>
-      
-      <div class="detail-item">
-        <label>End Date</label>
-        <span>{{ contact.enddate ? (contact.enddate | date) : 'Not specified' }}</span>
+      <div class="row mb-3" *ngIf="contact.address || contact.addr_value">
+        <div class="col-md-3 fw-bold">Address:</div>
+        <div class="col-md-9">{{ contact.address || contact.addr_value }}</div>
       </div>
-      
-      <div class="detail-item">
-        <label>Customer Effective Date</label>
-        <span>{{ contact.cust_efctv_dt ? (contact.cust_efctv_dt | date) : 'Not specified' }}</span>
+      <div class="row mb-3">
+        <div class="col-md-3 fw-bold">Effective Date:</div>
+        <div class="col-md-9">{{ (contact.effectivedate || contact.effectivedt) | date }}</div>
+      </div>
+      <div class="row mb-3" *ngIf="contact.enddate">
+        <div class="col-md-3 fw-bold">End Date:</div>
+        <div class="col-md-9">{{ contact.enddate | date }}</div>
+      </div>
+      <div class="row mb-3" *ngIf="contact.cust_efctv_dt">
+        <div class="col-md-3 fw-bold">Customer Effective Date:</div>
+        <div class="col-md-9">{{ contact.cust_efctv_dt | date }}</div>
       </div>
     </div>
-    
-    <div class="action-buttons">
-      <button type="button" class="btn btn-secondary" routerLink="/contact-list">
-        <i class="bi bi-arrow-left"></i> Back to List
-      </button>
-      <div class="btn-group">
-        <button type="button" class="btn btn-primary" (click)="editContact()">
-          <i class="bi bi-pencil"></i> Edit
-        </button>
+    <div class="card-footer">
+      <div class="d-flex justify-content-between">
+        <a [routerLink]="['/contact-list']" class="btn btn-secondary">Back to List</a>
+        <a [routerLink]="['/contact-edit', contactId]" class="btn btn-primary">Edit</a>
       </div>
+    </div>
+  </div>
+
+  <!-- Debug section to help identify data structure issues (hidden in production) -->
+  <div *ngIf="contact && !loading && !errorMessage" class="card mt-3">
+    <div class="card-header bg-secondary text-white">
+      <h4>Debug Information</h4>
+    </div>
+    <div class="card-body">
+      <pre>{{ contact | json }}</pre>
     </div>
   </div>
 </div> 

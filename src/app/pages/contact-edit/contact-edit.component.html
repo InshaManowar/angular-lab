@@ -92,7 +92,7 @@
       
       <div class="action-buttons">
         <div class="btn-group">
-          <button type="button" class="btn btn-secondary" routerLink="/contact-list">Cancel</button>
+          <a class="btn btn-secondary" [routerLink]="['/contact-list']">Cancel</a>
           <button type="button" class="btn btn-outline-secondary" (click)="resetForm()">Reset</button>
         </div>
         <button type="submit" class="btn btn-primary" [disabled]="contactForm.invalid || loading">

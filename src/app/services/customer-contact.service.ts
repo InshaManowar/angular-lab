@@ -7,13 +7,29 @@ import { catchError, map, tap } from 'rxjs/operators';
  * Customer Contact Details interface
  */
 export interface CustomerContactDetails {
+  // ID fields
   customeridentifier?: number;
+  contactid?: number;
+  
+  // Contact type fields
   customercontacttype?: string;
+  contacttype?: string;
+  
+  // Contact value fields
   customercontactvalue?: string;
+  contactvalue?: string;
+  
+  // Date fields
   effectivedt?: string;
+  effectivedate?: string;
   enddate?: string;
+  
+  // Address fields
   addr_value?: string;
+  address?: string;
   address_type_id?: string;
+  
+  // Customer fields
   cust_efctv_dt?: string;
 }
 
@@ -76,10 +92,12 @@ export class CustomerContactService {
     }
     
     return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
-      map(response => {
+      tap(response => {
         console.log('===== RAW CONTACT API RESPONSE =====');
         console.log('Full API response:', response);
-        
+        console.log('Response type:', typeof response);
+      }),
+      map(response => {
         // Handle different response formats
         let contactData: any = response;
         
@@ -87,21 +105,33 @@ export class CustomerContactService {
         if (response && typeof response === 'object') {
           // Check for common wrapper properties
           if (response.data) {
+            console.log('Found contact data in .data property');
             contactData = response.data;
           } else if (response.contact) {
+            console.log('Found contact data in .contact property');
             contactData = response.contact;
           } else if (response.content) {
+            console.log('Found contact data in .content property');
             contactData = response.content;
           }
         }
         
         console.log('Final contact data being returned:', contactData);
+        
+        // Ensure we have a valid customeridentifier field
+        if (!contactData.customeridentifier && id) {
+          console.log('Setting customeridentifier from request ID:', id);
+          contactData.customeridentifier = id;
+        }
+        
         console.log('==================================');
         
         return contactData;
       }),
       catchError(error => {
         console.error(`Error fetching contact with ID ${id}:`, error);
+        console.error('API error response:', error.error);
+        console.error('Status code:', error.status);
         return throwError(() => new Error('Failed to load contact details'));
       })
     );
