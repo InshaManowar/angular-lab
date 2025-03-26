@@ -88,39 +88,55 @@ export class CustomerService {
     }
     
     return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
-      tap(response => {
+      map(response => {
         console.log('===== RAW CUSTOMER API RESPONSE =====');
         console.log('Full API response:', response);
         console.log('Response type:', typeof response);
         
-        if (response) {
-          console.log('Response properties:', Object.keys(response));
-          
-          // Check for nested data structures
+        // Handle different response formats
+        let customerData: any = response;
+        
+        // Check if response is wrapped in a container object
+        if (response && typeof response === 'object') {
+          // Check for common wrapper properties
           if (response.data) {
-            console.log('Found nested data property:', response.data);
+            console.log('Found customer data in .data property');
+            customerData = response.data;
+          } else if (response.customer) {
+            console.log('Found customer data in .customer property');
+            customerData = response.customer;
+          } else if (response.content) {
+            console.log('Found customer data in .content property');
+            customerData = response.content;
           }
           
-          // Check for common ID fields
-          const idFields = ['cust_num', 'id', 'customerId', 'customer_id', '_id'];
-          idFields.forEach(field => {
-            if (response[field] !== undefined) {
-              console.log(`Found ID in field "${field}":`, response[field]);
+          // Log the extracted customer data
+          console.log('Extracted customer data:', customerData);
+          
+          // Check for ID fields and ensure cust_num is set
+          const idFields = ['id', 'customerId', 'customer_id', '_id'];
+          if (!customerData.cust_num) {
+            // Try to get ID from alternative fields
+            for (const field of idFields) {
+              if (customerData[field] !== undefined) {
+                console.log(`Using ${field} as cust_num:`, customerData[field]);
+                customerData.cust_num = customerData[field];
+                break;
+              }
             }
-          });
+            
+            // If we still don't have a cust_num, use the ID from the request
+            if (!customerData.cust_num) {
+              console.log('Setting cust_num from request ID:', id);
+              customerData.cust_num = id;
+            }
+          }
         }
+        
+        console.log('Final customer data being returned:', customerData);
         console.log('==================================');
         
-        // Check if the response has the expected properties
-        if (!response || !response.cust_num) {
-          console.warn('API returned customer without cust_num:', response);
-          
-          // If the backend response structure has changed, try to adapt
-          if (response && 'id' in response) {
-            console.log('Found id property instead of cust_num, adapting response');
-            (response as any).cust_num = (response as any).id;
-          }
-        }
+        return customerData;
       }),
       catchError(error => {
         console.error(`Error fetching customer with ID ${id}:`, error);

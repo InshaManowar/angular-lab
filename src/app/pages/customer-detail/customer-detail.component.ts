@@ -70,6 +70,12 @@ export class CustomerDetailComponent implements OnInit {
         catchError(err => {
           this.error = `Failed to load customer: ${err.message}`;
           console.error('API error details:', err);
+          
+          // If we get a 404 Not Found, the customer might not exist
+          if (err.status === 404) {
+            this.error = `Customer with ID ${this.customerId} not found. The customer may have been deleted.`;
+          }
+          
           return of(null);
         })
       )
@@ -91,6 +97,7 @@ export class CustomerDetailComponent implements OnInit {
           this.error = null;
         } else {
           console.error('No data received from API for customer ID:', this.customerId);
+          this.error = `No customer data available for ID: ${this.customerId}`;
         }
       });
   }

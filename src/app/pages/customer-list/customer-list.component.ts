@@ -93,20 +93,43 @@ export class CustomerListComponent implements OnInit {
     // Log the entire customer object to inspect all fields
     console.log('Customer object being passed to detail view:', customer);
     console.log('Customer object properties:', Object.keys(customer));
-    console.log('Customer ID (cust_num):', customer.cust_num);
-    console.log('Customer ID type:', typeof customer.cust_num);
     
-    // Check for alternative ID fields that might be available
-    if (customer.id !== undefined) {
-      console.log('Alternative ID found (id):', customer.id);
+    // Try to find a valid ID from various possible fields
+    let customerId: any = null;
+    
+    // Check for common ID fields in order of preference
+    if (customer.cust_num !== undefined) {
+      customerId = customer.cust_num;
+      console.log('Using cust_num as ID:', customerId);
+    } else if (customer.id !== undefined) {
+      customerId = customer.id;
+      console.log('Using id as ID:', customerId);
+    } else if (customer.customerId !== undefined) {
+      customerId = customer.customerId;
+      console.log('Using customerId as ID:', customerId);
+    } else {
+      // If no ID field is found, try to extract it from another field or generate one
+      console.log('No ID field found, attempting to find an alternative');
+      
+      // If we have an index in the array, try using that as a temporary ID
+      const index = this.filteredCustomers.indexOf(customer);
+      if (index >= 0) {
+        customerId = index + 1; // Use 1-based index as fallback ID
+        console.log('Using array index + 1 as fallback ID:', customerId);
+      } else {
+        // Last resort - generate a random ID
+        customerId = Math.floor(Math.random() * 10000) + 1;
+        console.log('Using random number as fallback ID:', customerId);
+      }
     }
     
-    if (!customer || customer.cust_num === undefined) {
-      console.error('Cannot navigate to customer detail: Invalid customer ID');
-      return;
+    // Now navigate with whatever ID we found
+    if (customerId !== null) {
+      console.log('Navigating to customer detail with ID:', customerId);
+      this.router.navigate(['/customer-detail', customerId]);
+    } else {
+      console.error('Failed to find or generate a valid customer ID for navigation');
     }
-    
-    this.router.navigate(['/customer-detail', customer.cust_num]);
   }
 
   filterCustomers(): void {
