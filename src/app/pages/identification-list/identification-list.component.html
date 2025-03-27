@@ -52,7 +52,10 @@
       </thead>
       <tbody>
         <tr *ngFor="let identification of filteredIdentifications">
-          <td>{{ identification.cust_id }}</td>
+          <td>
+            <span *ngIf="identification.cust_id">{{ identification.cust_id }}</span>
+            <span *ngIf="!identification.cust_id" class="text-muted">Pending</span>
+          </td>
           <td>{{ getIdentificationTypeLabel(identification.cust_id_type) }}</td>
           <td>{{ identification.cust_id_item }}</td>
           <td>{{ identification.cust_efctv_dt | date }}</td>
