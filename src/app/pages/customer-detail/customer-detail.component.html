@@ -77,13 +77,46 @@
     </div>
     
     <div class="action-buttons">
-      <button type="button" class="btn btn-secondary" routerLink="/customer-list">
+      <a class="btn btn-secondary" [routerLink]="['/customer-list']">
         <i class="bi bi-arrow-left"></i> Back to List
-      </button>
+      </a>
       <div class="btn-group">
-        <button type="button" class="btn btn-primary" (click)="editCustomer()">
+        <a class="btn btn-primary" [routerLink]="['/customer-edit', customer.cust_num]">
           <i class="bi bi-pencil"></i> Edit
-        </button>
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Debug information (hidden by default) -->
+  <div class="card mt-4" *ngIf="debug && Object.keys(debug).length > 0">
+    <div class="card-header bg-info text-white">
+      <h4 class="mb-0">Debug Information</h4>
+      <button class="btn btn-sm btn-outline-light float-end" 
+              (click)="toggleDebug()">
+        Show/Hide Details
+      </button>
+    </div>
+    <div class="card-body" *ngIf="showDebug">
+      <div class="debug-item">
+        <strong>Raw ID from URL:</strong> {{ debug.rawId }}
+      </div>
+      <div class="debug-item">
+        <strong>Converted ID:</strong> {{ debug.convertedId }}
+      </div>
+      <div class="debug-item" *ngIf="debug.error">
+        <strong>API Error:</strong>
+        <pre>{{ debug.error | json }}</pre>
+      </div>
+      <div class="debug-item" *ngIf="debug.properties">
+        <strong>API Response Properties:</strong>
+        <ul>
+          <li *ngFor="let prop of debug.properties">{{ prop }}</li>
+        </ul>
+      </div>
+      <div class="debug-item" *ngIf="debug.apiResponse">
+        <strong>Full API Response:</strong>
+        <pre>{{ debug.apiResponse | json }}</pre>
       </div>
     </div>
   </div>

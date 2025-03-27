@@ -17,6 +17,9 @@ export class CustomerDetailComponent implements OnInit {
   customerId!: number;
   loading: boolean = false;
   error: string | null = null;
+  debug: any = {}; // For debugging purposes
+  showDebug: boolean = false;
+  Object = Object; // Make Object available in the template
 
   constructor(
     private route: ActivatedRoute,
@@ -30,6 +33,7 @@ export class CustomerDetailComponent implements OnInit {
       const idParam = params.get('id');
       
       console.log('Raw ID parameter:', idParam);
+      this.debug.rawId = idParam;
       
       if (idParam === null || idParam === undefined) {
         this.error = "Missing customer ID parameter";
@@ -49,6 +53,7 @@ export class CustomerDetailComponent implements OnInit {
       // Try to convert to number and check if it's valid
       const id = Number(idParam);
       console.log('Converted ID:', id, 'Is NaN:', isNaN(id));
+      this.debug.convertedId = id;
       
       if (isNaN(id)) {
         this.error = `Invalid customer ID: "${idParam}"`;
@@ -70,10 +75,25 @@ export class CustomerDetailComponent implements OnInit {
         catchError(err => {
           this.error = `Failed to load customer: ${err.message}`;
           console.error('API error details:', err);
+          this.debug.error = err;
           
           // If we get a 404 Not Found, the customer might not exist
           if (err.status === 404) {
             this.error = `Customer with ID ${this.customerId} not found. The customer may have been deleted.`;
+          }
+          
+          // For local IDs (our generated ones), try to get from cache
+          if (this.customerId >= 2000) {
+            console.log('This appears to be a locally generated ID, attempting to recover data');
+            // Fetch all customers and find the one with this ID
+            this.customerService.getAllCustomers().subscribe(customers => {
+              const found = customers.find(c => c.cust_num === this.customerId);
+              if (found) {
+                console.log('Found customer in cached data:', found);
+                this.customer = found;
+                this.error = null;
+              }
+            });
           }
           
           return of(null);
@@ -91,7 +111,17 @@ export class CustomerDetailComponent implements OnInit {
             console.log(`${key}:`, value, `(type: ${typeof value})`);
           });
           
+          // Save to debug object
+          this.debug.apiResponse = data;
+          this.debug.properties = Object.keys(data);
+          
           console.log('========================================');
+          
+          // Ensure the customer has the ID from the URL if missing
+          if (data && !data.cust_num) {
+            console.log('API response missing cust_num, setting from URL param:', this.customerId);
+            data.cust_num = this.customerId;
+          }
           
           this.customer = data;
           this.error = null;
@@ -112,17 +142,30 @@ export class CustomerDetailComponent implements OnInit {
   }
 
   editCustomer(): void {
+    console.log('Navigating to edit customer with ID:', this.customerId);
     this.router.navigate(['/customer-edit', this.customerId]);
   }
 
   deleteCustomer(): void {
+    if (!this.customerId) {
+      console.error('Cannot delete customer: Missing ID');
+      return;
+    }
+    
     if (confirm('Are you sure you want to delete this customer?')) {
       this.customerService.deleteCustomer(this.customerId).subscribe({
         next: () => {
+          console.log('Customer deleted successfully');
           this.router.navigate(['/customer-list']);
         },
         error: (error) => {
           console.error('Error deleting customer:', error);
+          
+          // For local IDs, we'll just navigate back to the list
+          if (this.customerId >= 2000) {
+            console.log('This was a local ID, returning to list');
+            this.router.navigate(['/customer-list']);
+          }
         }
       });
     }
@@ -135,5 +178,11 @@ export class CustomerDetailComponent implements OnInit {
       case 'pending': return 'status-pending';
       default: return '';
     }
+  }
+
+  // Toggle debug information visibility
+  toggleDebug(): void {
+    this.showDebug = !this.showDebug;
+    console.log('Debug view toggled:', this.showDebug);
   }
 }

@@ -107,23 +107,22 @@ export class CustomerListComponent implements OnInit {
     } else if (customer.customerId !== undefined) {
       customerId = customer.customerId;
       console.log('Using customerId as ID for edit:', customerId);
-    } else if (customer.cust_type !== undefined) {
-      // If using type as a fallback ID
-      customerId = customer.cust_type;
-      console.log('Using cust_type as fallback ID for edit:', customerId);
     } else {
-      // If no ID field is found, try to extract it from another field or generate one
-      console.log('No ID field found, attempting to find an alternative for edit');
+      // If no ID field is found, generate a local ID using the customer service
+      console.log('No ID field found, generating a local ID for edit');
       
-      // If we have an index in the array, try using that as a temporary ID
+      // Create a clone of the customer with a generated ID
+      const customerWithId = { ...customer };
+      
+      // Use the customer service to ensure it has an ID
+      this.customerService['ensureId'](customerWithId);
+      customerId = customerWithId.cust_num;
+      console.log('Generated a local ID for edit:', customerId);
+      
+      // Update the customer in the UI immediately
       const index = this.filteredCustomers.indexOf(customer);
-      if (index >= 0) {
-        customerId = index + 1; // Use 1-based index as fallback ID
-        console.log('Using array index + 1 as fallback ID for edit:', customerId);
-      } else {
-        // Last resort - generate a random ID
-        customerId = Math.floor(Math.random() * 10000) + 1;
-        console.log('Using random number as fallback ID for edit:', customerId);
+      if (index !== -1) {
+        this.filteredCustomers[index] = customerWithId;
       }
     }
     
@@ -155,18 +154,21 @@ export class CustomerListComponent implements OnInit {
       customerId = customer.customerId;
       console.log('Using customerId as ID:', customerId);
     } else {
-      // If no ID field is found, try to extract it from another field or generate one
-      console.log('No ID field found, attempting to find an alternative');
+      // If no ID field is found, generate a local ID using the customer service
+      console.log('No ID field found, generating a local ID');
       
-      // If we have an index in the array, try using that as a temporary ID
+      // Create a clone of the customer with a generated ID
+      const customerWithId = { ...customer };
+      
+      // Use the customer service to ensure it has an ID
+      this.customerService['ensureId'](customerWithId);
+      customerId = customerWithId.cust_num;
+      console.log('Generated a local ID:', customerId);
+      
+      // Update the customer in the UI immediately
       const index = this.filteredCustomers.indexOf(customer);
-      if (index >= 0) {
-        customerId = index + 1; // Use 1-based index as fallback ID
-        console.log('Using array index + 1 as fallback ID:', customerId);
-      } else {
-        // Last resort - generate a random ID
-        customerId = Math.floor(Math.random() * 10000) + 1;
-        console.log('Using random number as fallback ID:', customerId);
+      if (index !== -1) {
+        this.filteredCustomers[index] = customerWithId;
       }
     }
     
