@@ -186,10 +186,22 @@ export class CustomerIdentificationService {
    * @returns Observable of the API response
    */
   updateIdentification(id: number, identification: CustomerIdentification): Observable<any> {
+    // Validate ID before making API call
+    if (isNaN(id) || id <= 0) {
+      console.error('Invalid identification ID for update:', id);
+      return throwError(() => new Error('Cannot update identification: Invalid ID'));
+    }
+    
     console.log(`Making API request to update identification: ${this.apiUrl}/cust_id/${id}`);
     console.log('Update payload:', identification);
     
-    return this.http.put<any>(`${this.apiUrl}/cust_id/${id}`, identification).pipe(
+    // Ensure the cust_id in the payload matches the ID parameter
+    const payloadWithId: CustomerIdentification = {
+      ...identification,
+      cust_id: id // Ensure consistent ID
+    };
+    
+    return this.http.put<any>(`${this.apiUrl}/cust_id/${id}`, payloadWithId).pipe(
       tap(response => {
         console.log('Identification update successful:', response);
         
@@ -197,7 +209,7 @@ export class CustomerIdentificationService {
         if (this.identificationsCache) {
           const index = this.identificationsCache.findIndex(item => item.cust_id === id);
           if (index !== -1) {
-            this.identificationsCache[index] = identification;
+            this.identificationsCache[index] = payloadWithId;
             console.log('Updated identification in cache');
           }
         }
@@ -217,6 +229,12 @@ export class CustomerIdentificationService {
    * @returns Observable of the API response
    */
   deleteIdentification(id: number): Observable<any> {
+    // Validate ID before making API call
+    if (isNaN(id) || id <= 0) {
+      console.error('Invalid identification ID for deletion:', id);
+      return throwError(() => new Error('Cannot delete identification: Invalid ID'));
+    }
+    
     console.log(`Making API request to delete identification: ${this.apiUrl}/cust_id/${id}`);
     
     return this.http.delete<any>(`${this.apiUrl}/cust_id/${id}`).pipe(

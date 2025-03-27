@@ -42,8 +42,12 @@ export class IdentificationEditComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    console.log('IdentificationEditComponent initialized');
+    
     this.route.paramMap.subscribe(params => {
+      console.log('Route parameters received:', params);
       const idParam = params.get('id');
+      console.log('ID parameter from route:', idParam);
       
       if (!idParam) {
         this.error = 'Missing identification ID';
@@ -51,6 +55,7 @@ export class IdentificationEditComponent implements OnInit {
       }
       
       this.identificationId = +idParam;
+      console.log('Converted ID to number:', this.identificationId);
       
       if (isNaN(this.identificationId) || this.identificationId <= 0) {
         this.error = 'Invalid identification ID';
@@ -62,6 +67,7 @@ export class IdentificationEditComponent implements OnInit {
   }
 
   loadIdentificationData(): void {
+    console.log(`Loading identification data for ID: ${this.identificationId}`);
     this.loading = true;
     this.identificationService.getIdentificationById(this.identificationId)
       .pipe(
@@ -71,6 +77,23 @@ export class IdentificationEditComponent implements OnInit {
         next: (data) => {
           console.log('Loaded identification data:', data);
           this.originalIdentification = data;
+          
+          // Double-check the ID received from the API
+          if (data.cust_id) {
+            console.log(`API returned cust_id: ${data.cust_id}, using this for update operations`);
+            // Update the component's ID if the API returned one
+            if (data.cust_id !== this.identificationId) {
+              console.log(`Note: API ID (${data.cust_id}) differs from route ID (${this.identificationId})`);
+            }
+          } else {
+            console.warn('API response does not contain cust_id, will use ID from route');
+            // If API response doesn't have an ID, add the route ID to the original data
+            this.originalIdentification = {
+              ...this.originalIdentification,
+              cust_id: this.identificationId
+            };
+          }
+          
           this.initForm();
         },
         error: (error) => {
@@ -131,21 +154,35 @@ export class IdentificationEditComponent implements OnInit {
       this.loading = true;
       this.error = null;
       
+      // Ensure we have a valid ID
+      if (!this.identificationId || isNaN(this.identificationId)) {
+        console.error('Invalid identification ID for update:', this.identificationId);
+        this.error = 'Cannot update: Invalid identification ID';
+        this.loading = false;
+        return;
+      }
+      
+      // Use the cust_id from originalIdentification if available, otherwise use identificationId from route
+      const idToUse = this.originalIdentification?.cust_id || this.identificationId;
+      
       const updatedIdentification: CustomerIdentification = {
         ...this.originalIdentification,
-        ...this.identificationForm.value
+        ...this.identificationForm.value,
+        // Ensure cust_id is explicitly set in the payload
+        cust_id: idToUse
       };
       
       console.log('Submitting updated identification data:', updatedIdentification);
+      console.log('Using ID for update:', idToUse);
       
-      this.identificationService.updateIdentification(this.identificationId, updatedIdentification)
+      this.identificationService.updateIdentification(idToUse, updatedIdentification)
         .pipe(
           finalize(() => this.loading = false)
         )
         .subscribe({
           next: response => {
             console.log('Identification updated successfully');
-            this.router.navigate(['/identification-detail', this.identificationId]);
+            this.router.navigate(['/identification-detail', idToUse]);
           },
           error: error => {
             console.error('Error updating identification:', error);
