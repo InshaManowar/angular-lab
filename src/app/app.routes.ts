@@ -6,6 +6,8 @@ import { CustomerListComponent } from './pages/customer-list/customer-list.compo
 import { CustomerDetailComponent } from './pages/customer-detail/customer-detail.component';
 import { CustomerEditComponent } from './pages/customer-edit/customer-edit.component';
 import { CustomerAddressComponent } from './pages/customer-address/customer-address.component';
+import { IdentificationDetailComponent } from './pages/identification-detail/identification-detail.component';
+import { IdentificationEditComponent } from './pages/identification-edit/identification-edit.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'customer-list', pathMatch: 'full' },
@@ -84,17 +86,11 @@ export const routes: Routes = [
   },
   {
     path: 'identification-detail/:id',
-    loadComponent: () =>
-      import('./pages/identification-detail/identification-detail.component').then(
-        (m) => m.IdentificationDetailComponent
-      ),
+    component: IdentificationDetailComponent
   },
   {
     path: 'identification-edit/:id',
-    loadComponent: () =>
-      import('./pages/identification-edit/identification-edit.component').then(
-        (m) => m.IdentificationEditComponent
-      ),
+    component: IdentificationEditComponent
   },
   { path: '**', redirectTo: '/customer-list' }
 ];

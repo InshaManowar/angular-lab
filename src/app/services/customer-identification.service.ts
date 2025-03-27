@@ -37,6 +37,17 @@ export class CustomerIdentificationService {
   }
 
   /**
+   * Check if localStorage is available
+   */
+  private isLocalStorageAvailable(): boolean {
+    try {
+      return typeof window !== 'undefined' && window.localStorage !== undefined;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /**
    * Generate a unique local ID when the API doesn't provide one
    */
   private generateLocalId(): number {
@@ -50,6 +61,11 @@ export class CustomerIdentificationService {
    * Save next ID counter to localStorage
    */
   private saveNextId(): void {
+    if (!this.isLocalStorageAvailable()) {
+      console.log('localStorage not available, skipping save operation');
+      return;
+    }
+    
     try {
       localStorage.setItem(this.LOCAL_ID_KEY, this.nextLocalId.toString());
     } catch (error) {
@@ -61,6 +77,11 @@ export class CustomerIdentificationService {
    * Restore next ID counter from localStorage
    */
   private restoreNextId(): void {
+    if (!this.isLocalStorageAvailable()) {
+      console.log('localStorage not available, using default ID counter');
+      return;
+    }
+    
     try {
       const savedId = localStorage.getItem(this.LOCAL_ID_KEY);
       if (savedId) {
