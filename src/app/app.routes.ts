@@ -68,5 +68,33 @@ export const routes: Routes = [
         (m) => m.ContactEditComponent
       ),
   },
+  {
+    path: 'identification-list',
+    loadComponent: () =>
+      import('./pages/identification-list/identification-list.component').then(
+        (m) => m.IdentificationListComponent
+      ),
+  },
+  {
+    path: 'identification-add',
+    loadComponent: () =>
+      import('./pages/identification-add/identification-add.component').then(
+        (m) => m.IdentificationAddComponent
+      ),
+  },
+  {
+    path: 'identification-detail/:id',
+    loadComponent: () =>
+      import('./pages/identification-detail/identification-detail.component').then(
+        (m) => m.IdentificationDetailComponent
+      ),
+  },
+  {
+    path: 'identification-edit/:id',
+    loadComponent: () =>
+      import('./pages/identification-edit/identification-edit.component').then(
+        (m) => m.IdentificationEditComponent
+      ),
+  },
   { path: '**', redirectTo: '/customer-list' }
 ];

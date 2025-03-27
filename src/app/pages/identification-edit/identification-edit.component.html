@@ -1,0 +1,70 @@
+<div class="form-page">
+  <h2>Edit Identification Document</h2>
+  <p class="description">Update identification document information</p>
+  
+  <!-- Error message -->
+  <div class="card" *ngIf="error">
+    <div class="alert alert-danger">
+      <i class="bi bi-exclamation-triangle-fill"></i> 
+      {{ error }}
+    </div>
+  </div>
+  
+  <!-- Loading indicator -->
+  <div class="card" *ngIf="loading">
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3">Loading identification information...</p>
+    </div>
+  </div>
+  
+  <div class="card" *ngIf="!loading && identificationForm">
+    <form [formGroup]="identificationForm" (ngSubmit)="onSubmit()">
+      <div class="form-section">
+        <div class="form-group">
+          <label for="cust_id_type">Identification Type *</label>
+          <select id="cust_id_type" formControlName="cust_id_type" class="form-select">
+            <option value="">-- Select Type --</option>
+            <option *ngFor="let type of idTypes" [value]="type.id">{{ type.name }}</option>
+          </select>
+          <div *ngIf="identificationForm.get('cust_id_type')?.invalid && identificationForm.get('cust_id_type')?.touched" class="error-message">
+            Identification type is required
+          </div>
+        </div>
+        
+        <div class="form-group full-width">
+          <label for="cust_id_item">Identification Number/Value *</label>
+          <input 
+            type="text" 
+            id="cust_id_item" 
+            formControlName="cust_id_item" 
+            class="form-control"
+            placeholder="Enter identification number or value">
+          <div *ngIf="identificationForm.get('cust_id_item')?.invalid && identificationForm.get('cust_id_item')?.touched" class="error-message">
+            Identification number is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="cust_efctv_dt">Effective Date *</label>
+          <input type="date" id="cust_efctv_dt" formControlName="cust_efctv_dt" class="form-control">
+          <div *ngIf="identificationForm.get('cust_efctv_dt')?.invalid && identificationForm.get('cust_efctv_dt')?.touched" class="error-message">
+            Effective date is required
+          </div>
+        </div>
+      </div>
+      
+      <div class="action-buttons">
+        <div class="btn-group">
+          <a class="btn btn-secondary" [routerLink]="['/identification-detail', identificationId]">Cancel</a>
+          <button type="button" class="btn btn-outline-secondary" (click)="resetForm()">Reset</button>
+        </div>
+        <button type="submit" class="btn btn-primary" [disabled]="identificationForm.invalid || loading">
+          Update Document
+        </button>
+      </div>
+    </form>
+  </div>
+</div> 
