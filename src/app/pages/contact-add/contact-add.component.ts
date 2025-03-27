@@ -69,9 +69,22 @@ export class ContactAddComponent implements OnInit {
         )
         .subscribe({
           next: response => {
-            console.log('Contact created successfully, navigating to list');
-            // Navigate to contact list
-            this.router.navigate(['/contact-list']);
+            console.log('Contact created successfully with response:', response);
+            
+            // Get the ID from the response
+            const newId = response.customeridentifier || response.contactid;
+            
+            if (newId) {
+              console.log('Navigating to contact detail with new ID:', newId);
+              
+              // Add a small delay to ensure the contact is available
+              setTimeout(() => {
+                this.router.navigate(['/contact-detail', newId]);
+              }, 300);
+            } else {
+              console.log('No ID returned, navigating to contact list');
+              this.router.navigate(['/contact-list']);
+            }
           },
           error: error => {
             console.error('Error creating contact:', error);

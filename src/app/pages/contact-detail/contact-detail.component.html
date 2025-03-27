@@ -59,14 +59,4 @@
       </div>
     </div>
   </div>
-
-  <!-- Debug section to help identify data structure issues (hidden in production) -->
-  <div *ngIf="contact && !loading && !errorMessage" class="card mt-3">
-    <div class="card-header bg-secondary text-white">
-      <h4>Debug Information</h4>
-    </div>
-    <div class="card-body">
-      <pre>{{ contact | json }}</pre>
-    </div>
-  </div>
 </div> 
