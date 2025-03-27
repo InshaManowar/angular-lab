@@ -32,24 +32,25 @@ export class IdentificationDetailComponent implements OnInit {
         const idParam = params.get('id');
         console.log('ID from route params:', idParam);
         
-        if (idParam) {
-          // Convert to number and check validity
-          this.identificationId = +idParam;
-          
-          if (isNaN(this.identificationId) || this.identificationId <= 0) {
-            console.error('Invalid ID parameter:', idParam);
-            this.errorMessage = 'Invalid identification ID provided';
-            this.loading = false;
-            return;
-          }
-          
-          console.log(`Loading identification details for ID: ${this.identificationId}`);
-          this.loadIdentificationDetails();
-        } else {
+        if (!idParam) {
           console.error('No ID parameter found in route');
           this.errorMessage = 'No identification ID provided';
           this.loading = false;
+          return;
         }
+        
+        // Convert to number and check validity
+        this.identificationId = +idParam;
+        
+        if (isNaN(this.identificationId) || this.identificationId <= 0) {
+          console.error('Invalid ID parameter:', idParam);
+          this.errorMessage = 'Invalid identification ID provided';
+          this.loading = false;
+          return;
+        }
+        
+        console.log(`Loading identification details for ID: ${this.identificationId}`);
+        this.loadIdentificationDetails();
       },
       error => {
         console.error('Error extracting route parameters:', error);
@@ -76,6 +77,11 @@ export class IdentificationDetailComponent implements OnInit {
           console.error('Unexpected identification data type:', typeof this.identification);
           this.errorMessage = 'Invalid identification data format';
         } else {
+          // Ensure the component's ID matches the response ID if present
+          if (this.identification.cust_id && this.identification.cust_id !== this.identificationId) {
+            console.log(`Updating component ID from ${this.identificationId} to match response: ${this.identification.cust_id}`);
+            this.identificationId = this.identification.cust_id;
+          }
           console.log('Identification loaded successfully:', this.identification);
         }
       },
@@ -94,5 +100,9 @@ export class IdentificationDetailComponent implements OnInit {
 
   getIdentificationTypeLabel(type?: number): string {
     return this.identificationService.getIdentificationTypeLabel(type);
+  }
+
+  goToList(): void {
+    this.router.navigate(['/identification-list']);
   }
 } 

@@ -32,7 +32,7 @@ export class IdentificationAddComponent implements OnInit {
     private identificationService: CustomerIdentificationService
   ) {
     this.identificationForm = this.fb.group({
-      cust_id_type: ['', Validators.required],
+      cust_id_type: [null, Validators.required],
       cust_id_item: ['', Validators.required],
       cust_efctv_dt: [new Date().toISOString().split('T')[0], Validators.required]
     });
@@ -46,17 +46,32 @@ export class IdentificationAddComponent implements OnInit {
       this.loading = true;
       this.error = null;
       
-      console.log('Submitting new identification data:', this.identificationForm.value);
+      // Ensure proper conversion of cust_id_type to a number
+      const formValues = this.identificationForm.getRawValue();
+      const submitData = {
+        ...formValues,
+        cust_id_type: formValues.cust_id_type ? Number(formValues.cust_id_type) : undefined
+      };
       
-      this.identificationService.createIdentification(this.identificationForm.value)
+      console.log('Submitting new identification data:', submitData);
+      
+      this.identificationService.createIdentification(submitData)
         .pipe(
           finalize(() => this.loading = false)
         )
         .subscribe({
           next: response => {
-            console.log('Identification created successfully, navigating to list');
-            // Navigate to identification list
-            this.router.navigate(['/identification-list']);
+            console.log('Identification created successfully:', response);
+            
+            // If the response has an ID, navigate to the detail page for that ID
+            if (response && response.cust_id) {
+              console.log(`Navigating to detail view for new ID: ${response.cust_id}`);
+              this.router.navigate(['/identification-detail', response.cust_id]);
+            } else {
+              // Otherwise, just navigate to the list view
+              console.log('No ID received in response, navigating to list view');
+              this.router.navigate(['/identification-list']);
+            }
           },
           error: error => {
             console.error('Error creating identification:', error);
@@ -77,20 +92,33 @@ export class IdentificationAddComponent implements OnInit {
       this.loading = true;
       this.error = null;
       
-      this.identificationService.createIdentification(this.identificationForm.value)
+      // Ensure proper conversion of cust_id_type to a number
+      const formValues = this.identificationForm.getRawValue();
+      const submitData = {
+        ...formValues,
+        cust_id_type: formValues.cust_id_type ? Number(formValues.cust_id_type) : undefined
+      };
+      
+      console.log('Submitting new identification data:', submitData);
+      
+      this.identificationService.createIdentification(submitData)
         .pipe(
           finalize(() => this.loading = false)
         )
         .subscribe({
           next: response => {
-            console.log('Identification created successfully, form reset for another');
+            console.log('Identification created successfully:', response);
             // Reset form for another entry
             this.identificationForm.reset({
-              cust_id_type: '',
+              cust_id_type: null,
               cust_efctv_dt: new Date().toISOString().split('T')[0]
             });
-            // Show success message
-            alert('Identification document created successfully!');
+            // Show success message with ID if available
+            if (response && response.cust_id) {
+              alert(`Identification document created successfully with ID: ${response.cust_id}`);
+            } else {
+              alert('Identification document created successfully!');
+            }
           },
           error: error => {
             console.error('Error creating identification:', error);
