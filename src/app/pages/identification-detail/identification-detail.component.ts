@@ -52,11 +52,8 @@ export class IdentificationDetailComponent implements OnInit {
           return;
         }
         
-        // Check if this is a locally generated ID (1000+)
+        // Still track if it's a local ID for internal functionality
         this.isLocalId = this.identificationId >= 1000;
-        if (this.isLocalId) {
-          console.log('This is a locally generated ID, may not exist in backend:', this.identificationId);
-        }
         
         console.log(`Loading identification details for ID: ${this.identificationId}`);
         this.loadIdentificationDetails();
@@ -107,10 +104,10 @@ export class IdentificationDetailComponent implements OnInit {
         this.errorMessage = error.message || 'Failed to load identification details';
         this.loading = false;
         
-        // For local IDs, we can retry with getAllIdentifications
-        if (this.isLocalId && this.retryCount < 1) {
+        // Still handle retry for all IDs
+        if (this.retryCount < 1) {
           this.retryCount++;
-          console.log(`Retrying with getAllIdentifications for local ID: ${this.identificationId}`);
+          console.log(`Retrying with getAllIdentifications for ID: ${this.identificationId}`);
           this.retryWithAllIdentifications();
         }
       }
@@ -129,8 +126,8 @@ export class IdentificationDetailComponent implements OnInit {
           this.identification = found;
           this.loading = false;
         } else if (this.isLocalId) {
-          // Create a placeholder for local IDs
-          console.log('Creating placeholder for local ID:', this.identificationId);
+          // Create a placeholder if needed
+          console.log('Creating placeholder for ID:', this.identificationId);
           this.identification = {
             cust_id: this.identificationId,
             cust_id_type: 1, // Default type

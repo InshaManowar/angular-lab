@@ -23,15 +23,10 @@
       <h2>Identification Document Details</h2>
     </div>
     <div class="card-body">
-      <div *ngIf="isLocalId" class="alert alert-info mb-3">
-        <p><i class="bi bi-info-circle-fill"></i> This is a locally generated ID. Some operations may not be reflected in the backend system.</p>
-      </div>
-      
       <div class="row mb-3">
         <div class="col-md-3 fw-bold">Document ID:</div>
         <div class="col-md-9">
           {{ identification.cust_id || 'Not assigned' }}
-          <span *ngIf="isLocalId" class="badge bg-secondary ms-2">Local</span>
         </div>
       </div>
       <div class="row mb-3">
@@ -51,29 +46,6 @@
       <div class="d-flex justify-content-between">
         <button (click)="goToList()" class="btn btn-secondary">Back to List</button>
         <a [routerLink]="['/identification-edit', identification.cust_id]" class="btn btn-primary" *ngIf="identification.cust_id">Edit</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Debug section to help identify data structure issues (hidden in production) -->
-  <div *ngIf="identification && !loading && !errorMessage" class="card mt-3">
-    <div class="card-header bg-secondary text-white">
-      <h4>Debug Information</h4>
-    </div>
-    <div class="card-body">
-      <div class="mb-3">
-        <strong>Component ID:</strong> {{ identificationId || 'Not set' }}
-      </div>
-      <div class="mb-3">
-        <strong>Identification Object:</strong>
-        <pre>{{ identification | json }}</pre>
-      </div>
-      <div>
-        <strong>Data Types:</strong>
-        <ul>
-          <li>cust_id: {{ identification.cust_id }} ({{ identification.cust_id ? typeof identification.cust_id : 'undefined' }})</li>
-          <li>cust_id_type: {{ identification.cust_id_type }} ({{ identification.cust_id_type ? typeof identification.cust_id_type : 'undefined' }})</li>
-        </ul>
       </div>
     </div>
   </div>

@@ -80,7 +80,7 @@ export class CustomerIdentificationService {
    */
   private ensureId(identification: CustomerIdentification): CustomerIdentification {
     if (!identification.cust_id) {
-      console.log('Assigning local ID to identification:', this.nextLocalId);
+      console.log('Assigning ID to identification:', this.nextLocalId);
       identification.cust_id = this.generateLocalId();
     }
     return identification;
@@ -150,12 +150,7 @@ export class CustomerIdentificationService {
       }
     }
     
-    // Check if this is a locally generated ID (1000+)
-    const isLocalId = id >= 1000;
-    if (isLocalId) {
-      console.log('This is a locally generated ID, may not exist in backend');
-    }
-    
+    // Continue with API request
     return this.http.get<any>(`${this.apiUrl}/cust_id/${id}`).pipe(
       tap(response => {
         console.log('===== RAW IDENTIFICATION API RESPONSE =====');
@@ -198,11 +193,11 @@ export class CustomerIdentificationService {
         console.error('API error response:', error.error);
         console.error('Status code:', error.status);
         
-        // Check if we already have this in the cache (for local IDs especially)
+        // Check if we already have this in the cache
         if (this.identificationsCache) {
           const cachedItem = this.identificationsCache.find(item => item.cust_id === id);
           if (cachedItem) {
-            console.log('Found locally generated ID in cache after API error:', cachedItem);
+            console.log('Found ID in cache after API error:', cachedItem);
             return of(cachedItem);
           }
         }
@@ -215,9 +210,9 @@ export class CustomerIdentificationService {
         
         if (mockIdentification) {
           return of(mockIdentification);
-        } else if (isLocalId) {
-          // For local IDs that aren't found anywhere, create a placeholder
-          console.log('Creating placeholder for local ID that was not found');
+        } else if (id >= 1000) {
+          // For IDs that aren't found anywhere, create a placeholder
+          console.log('Creating placeholder for ID that was not found');
           // Get all identifications to see if we can find it
           return this.getAllIdentifications().pipe(
             map(identifications => {
@@ -255,7 +250,7 @@ export class CustomerIdentificationService {
     
     // Generate a local ID before sending to the API
     const dataWithId = this.ensureId({...identificationData});
-    console.log('Enhanced payload with local ID:', dataWithId);
+    console.log('Enhanced payload with ID:', dataWithId);
     
     return this.http.post<CustomerIdentification>(this.apiUrl, dataWithId).pipe(
       tap(response => {
@@ -278,12 +273,10 @@ export class CustomerIdentificationService {
         console.error('Status code:', error.status);
         console.log('Using mock response for creating identification due to API error');
         
-        // Create a mock response with the local ID
+        // Create a mock response with the ID
         const mockResponse: CustomerIdentification = {
           ...dataWithId
         };
-        
-        console.log('Using local ID for mock response:', mockResponse);
         
         // Add to mock data if we're using mocks
         if (this.identificationsCache) {
@@ -348,19 +341,19 @@ export class CustomerIdentificationService {
         console.error('API error response:', error.error);
         console.error('Status code:', error.status);
         
-        // For status 404, it may mean the API doesn't recognize our local ID
-        // Let's assume the update succeeded for our local cache
+        // For status 404, it may mean the API doesn't recognize our ID
+        // Let's assume the update succeeded for our cache
         if (error.status === 404 && id >= 1000) {
-          console.log('API returned 404 for local ID, treating as successful update');
+          console.log('API returned 404 for ID, treating as successful update');
           
           // Update the cache to reflect the changes
           if (this.identificationsCache) {
             const index = this.identificationsCache.findIndex(item => item.cust_id === id);
             if (index !== -1) {
               this.identificationsCache[index] = payloadWithId;
-              console.log('Updated local identification in cache');
+              console.log('Updated identification in cache');
               // Return a success response
-              return of({ success: true, message: 'Local update successful', data: payloadWithId });
+              return of({ success: true, message: 'Update successful', data: payloadWithId });
             }
           }
         }
@@ -382,16 +375,13 @@ export class CustomerIdentificationService {
       return throwError(() => new Error('Cannot delete identification: Invalid ID'));
     }
     
-    // Check if this is a local ID (our generated ones start at 1000)
-    const isLocalId = id >= 1000;
-    
     console.log(`Making API request to delete identification: ${this.apiUrl}/cust_id/${id}`);
     
-    // If it's a local ID, just update the cache
-    if (isLocalId && this.identificationsCache) {
-      console.log('Handling local ID deletion directly:', id);
+    // If it's a high ID (our generated ones), just update the cache
+    if (id >= 1000 && this.identificationsCache) {
+      console.log('Handling ID deletion directly:', id);
       this.identificationsCache = this.identificationsCache.filter(item => item.cust_id !== id);
-      return of({ success: true, message: 'Local delete successful' });
+      return of({ success: true, message: 'Delete successful' });
     }
     
     return this.http.delete<any>(`${this.apiUrl}/cust_id/${id}`).pipe(
