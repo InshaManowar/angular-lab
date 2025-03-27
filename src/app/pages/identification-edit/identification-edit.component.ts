@@ -35,7 +35,7 @@ export class IdentificationEditComponent implements OnInit {
     private identificationService: CustomerIdentificationService
   ) {
     this.identificationForm = this.fb.group({
-      cust_id_type: ['', Validators.required],
+      cust_id_type: [null, Validators.required],
       cust_id_item: ['', Validators.required],
       cust_efctv_dt: ['', Validators.required]
     });
@@ -122,7 +122,7 @@ export class IdentificationEditComponent implements OnInit {
     };
     
     this.identificationForm.setValue({
-      cust_id_type: this.originalIdentification.cust_id_type || '',
+      cust_id_type: this.originalIdentification.cust_id_type || null,
       cust_id_item: this.originalIdentification.cust_id_item || '',
       cust_efctv_dt: formatDate(this.originalIdentification.cust_efctv_dt)
     });
@@ -141,8 +141,12 @@ export class IdentificationEditComponent implements OnInit {
         }
       };
       
+      // Reset to original values with proper type handling
+      console.log('Resetting form to original values:', this.originalIdentification);
+      console.log('Original cust_id_type:', typeof this.originalIdentification.cust_id_type, this.originalIdentification.cust_id_type);
+      
       this.identificationForm.setValue({
-        cust_id_type: this.originalIdentification.cust_id_type || '',
+        cust_id_type: this.originalIdentification.cust_id_type || null,
         cust_id_item: this.originalIdentification.cust_id_item || '',
         cust_efctv_dt: formatDate(this.originalIdentification.cust_efctv_dt)
       });
@@ -165,15 +169,21 @@ export class IdentificationEditComponent implements OnInit {
       // Use the cust_id from originalIdentification if available, otherwise use identificationId from route
       const idToUse = this.originalIdentification?.cust_id || this.identificationId;
       
+      // Get form values and ensure proper type conversion
+      const formValues = this.identificationForm.getRawValue();
+      
+      // Create the updated identification object with proper types
       const updatedIdentification: CustomerIdentification = {
         ...this.originalIdentification,
-        ...this.identificationForm.value,
-        // Ensure cust_id is explicitly set in the payload
-        cust_id: idToUse
+        cust_id: idToUse,
+        cust_id_type: formValues.cust_id_type ? Number(formValues.cust_id_type) : undefined,
+        cust_id_item: formValues.cust_id_item,
+        cust_efctv_dt: formValues.cust_efctv_dt
       };
       
       console.log('Submitting updated identification data:', updatedIdentification);
       console.log('Using ID for update:', idToUse);
+      console.log('cust_id_type:', typeof updatedIdentification.cust_id_type, updatedIdentification.cust_id_type);
       
       this.identificationService.updateIdentification(idToUse, updatedIdentification)
         .pipe(

@@ -193,13 +193,18 @@ export class CustomerIdentificationService {
     }
     
     console.log(`Making API request to update identification: ${this.apiUrl}/cust_id/${id}`);
-    console.log('Update payload:', identification);
+    console.log('Update payload before processing:', identification);
     
     // Ensure the cust_id in the payload matches the ID parameter
+    // And ensure cust_id_type is properly converted to a number
     const payloadWithId: CustomerIdentification = {
       ...identification,
-      cust_id: id // Ensure consistent ID
+      cust_id: id, // Ensure consistent ID
+      cust_id_type: identification.cust_id_type ? Number(identification.cust_id_type) : undefined
     };
+    
+    console.log('Final update payload after processing:', payloadWithId);
+    console.log('cust_id_type in payload:', typeof payloadWithId.cust_id_type, payloadWithId.cust_id_type);
     
     return this.http.put<any>(`${this.apiUrl}/cust_id/${id}`, payloadWithId).pipe(
       tap(response => {

@@ -26,7 +26,7 @@
         <div class="form-group">
           <label for="cust_id_type">Identification Type *</label>
           <select id="cust_id_type" formControlName="cust_id_type" class="form-select">
-            <option value="">-- Select Type --</option>
+            <option [value]="null">-- Select Type --</option>
             <option *ngFor="let type of idTypes" [value]="type.id">{{ type.name }}</option>
           </select>
           <div *ngIf="identificationForm.get('cust_id_type')?.invalid && identificationForm.get('cust_id_type')?.touched" class="error-message">
