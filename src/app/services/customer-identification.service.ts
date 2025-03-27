@@ -150,6 +150,12 @@ export class CustomerIdentificationService {
       }
     }
     
+    // Check if this is a locally generated ID (1000+)
+    const isLocalId = id >= 1000;
+    if (isLocalId) {
+      console.log('This is a locally generated ID, may not exist in backend');
+    }
+    
     return this.http.get<any>(`${this.apiUrl}/cust_id/${id}`).pipe(
       tap(response => {
         console.log('===== RAW IDENTIFICATION API RESPONSE =====');
@@ -191,6 +197,16 @@ export class CustomerIdentificationService {
         console.error(`Error fetching identification with ID ${id}:`, error);
         console.error('API error response:', error.error);
         console.error('Status code:', error.status);
+        
+        // Check if we already have this in the cache (for local IDs especially)
+        if (this.identificationsCache) {
+          const cachedItem = this.identificationsCache.find(item => item.cust_id === id);
+          if (cachedItem) {
+            console.log('Found locally generated ID in cache after API error:', cachedItem);
+            return of(cachedItem);
+          }
+        }
+        
         console.log('Using mock data for single identification due to API error');
         
         // Find the mock identification with the matching ID
@@ -199,6 +215,28 @@ export class CustomerIdentificationService {
         
         if (mockIdentification) {
           return of(mockIdentification);
+        } else if (isLocalId) {
+          // For local IDs that aren't found anywhere, create a placeholder
+          console.log('Creating placeholder for local ID that was not found');
+          // Get all identifications to see if we can find it
+          return this.getAllIdentifications().pipe(
+            map(identifications => {
+              const found = identifications.find(item => item.cust_id === id);
+              if (found) {
+                console.log('Found identification in full list:', found);
+                return found;
+              }
+              
+              // If still not found, create a placeholder
+              console.warn('Could not find identification in any source, creating placeholder');
+              return {
+                cust_id: id,
+                cust_id_type: 1, // Default type
+                cust_id_item: 'Pending...',
+                cust_efctv_dt: new Date().toISOString()
+              };
+            })
+          );
         } else {
           return throwError(() => new Error('Failed to load identification details: ID not found'));
         }

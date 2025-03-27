@@ -66,7 +66,11 @@ export class IdentificationAddComponent implements OnInit {
             // If the response has an ID, navigate to the detail page for that ID
             if (response && response.cust_id) {
               console.log(`Navigating to detail view for new ID: ${response.cust_id}`);
-              this.router.navigate(['/identification-detail', response.cust_id]);
+              
+              // Small delay to allow any backend processing to complete
+              setTimeout(() => {
+                this.router.navigate(['/identification-detail', response.cust_id]);
+              }, 200);
             } else {
               // Otherwise, just navigate to the list view
               console.log('No ID received in response, navigating to list view');
