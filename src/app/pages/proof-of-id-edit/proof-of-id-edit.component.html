@@ -1,0 +1,75 @@
+<div class="form-page">
+  <h2>Edit Proof of ID Document</h2>
+  <p class="description">Update proof of ID document information</p>
+  
+  <!-- Error message -->
+  <div class="card" *ngIf="error">
+    <div class="alert alert-danger">
+      <i class="bi bi-exclamation-triangle-fill"></i> 
+      {{ error }}
+    </div>
+  </div>
+  
+  <!-- Loading indicator -->
+  <div class="card" *ngIf="loading">
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3">Loading proof information...</p>
+    </div>
+  </div>
+  
+  <div class="card" *ngIf="!loading && proofForm">
+    <form [formGroup]="proofForm" (ngSubmit)="onSubmit()">
+      <div class="form-section">
+        <div class="form-group">
+          <label for="proof_type_id">Document Type *</label>
+          <select id="proof_type_id" formControlName="proof_type_id" class="form-select">
+            <option [ngValue]="null">-- Select Type --</option>
+            <option *ngFor="let type of proofTypes" [ngValue]="type.id">{{ type.name }}</option>
+          </select>
+          <div *ngIf="proofForm.get('proof_type_id')?.invalid && proofForm.get('proof_type_id')?.touched" class="error-message">
+            Document type is required
+          </div>
+        </div>
+        
+        <div class="form-group full-width">
+          <label for="proof_value">Document Number/Value *</label>
+          <input 
+            type="text" 
+            id="proof_value" 
+            formControlName="proof_value" 
+            class="form-control"
+            placeholder="Enter document number or value">
+          <div *ngIf="proofForm.get('proof_value')?.invalid && proofForm.get('proof_value')?.touched" class="error-message">
+            Document value is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="cust_efctv_dt">Effective Date *</label>
+          <input type="date" id="cust_efctv_dt" formControlName="cust_efctv_dt" class="form-control">
+          <div *ngIf="proofForm.get('cust_efctv_dt')?.invalid && proofForm.get('cust_efctv_dt')?.touched" class="error-message">
+            Effective date is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="end_date">Expiration Date</label>
+          <input type="date" id="end_date" formControlName="end_date" class="form-control">
+        </div>
+      </div>
+      
+      <div class="action-buttons">
+        <div class="btn-group">
+          <a class="btn btn-secondary" [routerLink]="['/proof-of-id-detail', proofId]">Cancel</a>
+          <button type="button" class="btn btn-outline-secondary" (click)="resetForm()">Reset</button>
+        </div>
+        <button type="submit" class="btn btn-primary" [disabled]="proofForm.invalid || loading">
+          Update Document
+        </button>
+      </div>
+    </form>
+  </div>
+</div> 

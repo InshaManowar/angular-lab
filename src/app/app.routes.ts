@@ -92,5 +92,33 @@ export const routes: Routes = [
     path: 'identification-edit/:id',
     component: IdentificationEditComponent
   },
+  {
+    path: 'proof-of-id-list',
+    loadComponent: () =>
+      import('./pages/proof-of-id-list/proof-of-id-list.component').then(
+        (m) => m.ProofOfIdListComponent
+      ),
+  },
+  {
+    path: 'proof-of-id-add',
+    loadComponent: () =>
+      import('./pages/proof-of-id-add/proof-of-id-add.component').then(
+        (m) => m.ProofOfIdAddComponent
+      ),
+  },
+  {
+    path: 'proof-of-id-detail/:id',
+    loadComponent: () =>
+      import('./pages/proof-of-id-detail/proof-of-id-detail.component').then(
+        (m) => m.ProofOfIdDetailComponent
+      ),
+  },
+  {
+    path: 'proof-of-id-edit/:id',
+    loadComponent: () =>
+      import('./pages/proof-of-id-edit/proof-of-id-edit.component').then(
+        (m) => m.ProofOfIdEditComponent
+      ),
+  },
   { path: '**', redirectTo: '/customer-list' }
 ];
