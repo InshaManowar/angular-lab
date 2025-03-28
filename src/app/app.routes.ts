@@ -10,7 +10,14 @@ import { IdentificationDetailComponent } from './pages/identification-detail/ide
 import { IdentificationEditComponent } from './pages/identification-edit/identification-edit.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'customer-list', pathMatch: 'full' },
+  { path: '', redirectTo: 'landing', pathMatch: 'full' },
+  {
+    path: 'landing',
+    loadComponent: () =>
+      import('./pages/landing/landing.component').then(
+        (m) => m.LandingComponent
+      ),
+  },
   {
     path: 'customer-list',
     loadComponent: () =>
@@ -31,6 +38,7 @@ export const routes: Routes = [
       import('./pages/customer-detail/customer-detail.component').then(
         (m) => m.CustomerDetailComponent
       ),
+    data: { renderMode: 'client' }
   },
   {
     path: 'customer-edit/:id',
@@ -38,6 +46,7 @@ export const routes: Routes = [
       import('./pages/customer-edit/customer-edit.component').then(
         (m) => m.CustomerEditComponent
       ),
+    data: { renderMode: 'client' }
   },
   { path: 'customer-name', component: CustomerNameComponent },
   { path: 'customer-identity', component: CustomerIdentityComponent },
@@ -62,6 +71,7 @@ export const routes: Routes = [
       import('./pages/contact-detail/contact-detail.component').then(
         (m) => m.ContactDetailComponent
       ),
+    data: { renderMode: 'client' }
   },
   {
     path: 'contact-edit/:id',
@@ -69,6 +79,7 @@ export const routes: Routes = [
       import('./pages/contact-edit/contact-edit.component').then(
         (m) => m.ContactEditComponent
       ),
+    data: { renderMode: 'client' }
   },
   {
     path: 'identification-list',
@@ -86,39 +97,13 @@ export const routes: Routes = [
   },
   {
     path: 'identification-detail/:id',
-    component: IdentificationDetailComponent
+    component: IdentificationDetailComponent,
+    data: { renderMode: 'client' }
   },
   {
     path: 'identification-edit/:id',
-    component: IdentificationEditComponent
+    component: IdentificationEditComponent,
+    data: { renderMode: 'client' }
   },
-  {
-    path: 'proof-of-id-list',
-    loadComponent: () =>
-      import('./pages/proof-of-id-list/proof-of-id-list.component').then(
-        (m) => m.ProofOfIdListComponent
-      ),
-  },
-  {
-    path: 'proof-of-id-add',
-    loadComponent: () =>
-      import('./pages/proof-of-id-add/proof-of-id-add.component').then(
-        (m) => m.ProofOfIdAddComponent
-      ),
-  },
-  {
-    path: 'proof-of-id-detail/:id',
-    loadComponent: () =>
-      import('./pages/proof-of-id-detail/proof-of-id-detail.component').then(
-        (m) => m.ProofOfIdDetailComponent
-      ),
-  },
-  {
-    path: 'proof-of-id-edit/:id',
-    loadComponent: () =>
-      import('./pages/proof-of-id-edit/proof-of-id-edit.component').then(
-        (m) => m.ProofOfIdEditComponent
-      ),
-  },
-  { path: '**', redirectTo: '/customer-list' }
+  { path: '**', redirectTo: '/landing' }
 ];

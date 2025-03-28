@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
+import { isLocalStorageAvailable, getLocalStorage, setLocalStorage } from '../utils/local-storage.util';
 
 /**
  * Customer data interface - adjusted to match the backend entity
@@ -37,17 +38,6 @@ export class CustomerService {
   }
 
   /**
-   * Check if localStorage is available
-   */
-  private isLocalStorageAvailable(): boolean {
-    try {
-      return typeof window !== 'undefined' && window.localStorage !== undefined;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  /**
    * Generate a unique local ID when the API doesn't provide one
    */
   private generateLocalId(): number {
@@ -61,38 +51,20 @@ export class CustomerService {
    * Save next ID counter to localStorage
    */
   private saveNextId(): void {
-    if (!this.isLocalStorageAvailable()) {
-      console.log('localStorage not available, skipping save operation');
-      return;
-    }
-    
-    try {
-      localStorage.setItem(this.LOCAL_CUSTOMER_ID_KEY, this.nextLocalId.toString());
-    } catch (error) {
-      console.error('Error saving next customer ID to localStorage:', error);
-    }
+    setLocalStorage(this.LOCAL_CUSTOMER_ID_KEY, this.nextLocalId.toString());
   }
 
   /**
    * Restore next ID counter from localStorage
    */
   private restoreNextId(): void {
-    if (!this.isLocalStorageAvailable()) {
-      console.log('localStorage not available, using default ID counter');
-      return;
-    }
-    
-    try {
-      const savedId = localStorage.getItem(this.LOCAL_CUSTOMER_ID_KEY);
-      if (savedId) {
-        const parsedId = parseInt(savedId, 10);
-        if (!isNaN(parsedId) && parsedId >= 2000) {
-          console.log(`Restored next customer ID counter from localStorage: ${parsedId}`);
-          this.nextLocalId = parsedId;
-        }
+    const savedId = getLocalStorage(this.LOCAL_CUSTOMER_ID_KEY);
+    if (savedId) {
+      const parsedId = parseInt(savedId, 10);
+      if (!isNaN(parsedId) && parsedId >= 2000) {
+        console.log(`Restored next customer ID counter from localStorage: ${parsedId}`);
+        this.nextLocalId = parsedId;
       }
-    } catch (error) {
-      console.error('Error restoring next customer ID from localStorage:', error);
     }
   }
 
