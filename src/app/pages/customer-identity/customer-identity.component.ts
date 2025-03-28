@@ -110,10 +110,10 @@ export class CustomerIdentityComponent implements OnInit {
         });
       } else {
         // This shouldn't happen since we should come from customer-name
-        // But just in case, redirect to customer-name
-        console.warn('No customer ID found, redirecting to customer name form');
+        // But just in case, redirect to customer list
+        console.warn('No customer ID found, redirecting to customer list');
         this.loading = false;
-        this.router.navigate(['/customer-name']);
+        this.router.navigate(['/customer-list']);
       }
     } else {
       // Mark all fields as touched to trigger validation messages

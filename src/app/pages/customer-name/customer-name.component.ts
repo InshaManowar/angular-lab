@@ -89,9 +89,8 @@ export class CustomerNameComponent implements OnInit {
           .subscribe({
             next: (response) => {
               console.log('Customer updated successfully', response);
-              // Use session storage to pass ID to the next screen
-              sessionStorage.setItem('customerId', this.customerId);
-              this.router.navigate(['/customer-identity']);
+              // Update to navigate to customer list
+              this.router.navigate(['/customer-list']);
             },
             error: (error) => {
               console.error('Error updating customer', error);
@@ -117,9 +116,8 @@ export class CustomerNameComponent implements OnInit {
               // Make sure we have a customer ID
               if (response.cust_num) {
                 this.customerId = response.cust_num.toString();
-                // Use session storage to pass ID to the next screen
-                sessionStorage.setItem('customerId', this.customerId);
-                this.router.navigate(['/customer-identity']);
+                // Navigate to customer list
+                this.router.navigate(['/customer-list']);
               } else {
                 console.error('API response missing customer ID');
                 this.error = 'Error creating customer: Missing ID in response';

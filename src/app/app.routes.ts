@@ -47,8 +47,8 @@ export const routes: Routes = [
       ),
     data: { renderMode: 'client' }
   },
-  { path: 'customer-name', component: CustomerNameComponent },
-  { path: 'customer-identity', component: CustomerIdentityComponent },
+  { path: 'customer-name', redirectTo: 'customer-list', pathMatch: 'full' },
+  { path: 'customer-identity', redirectTo: 'customer-list', pathMatch: 'full' },
   {
     path: 'contact-list',
     loadComponent: () =>
