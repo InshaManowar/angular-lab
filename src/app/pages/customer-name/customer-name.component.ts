@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CustomerService } from '../../services/customer.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-customer-name',
@@ -14,6 +15,8 @@ import { CustomerService } from '../../services/customer.service';
 export class CustomerNameComponent implements OnInit {
   nameForm!: FormGroup;
   customerId: string = '';
+  loading: boolean = false;
+  error: string | null = null;
 
   constructor(
     private fb: FormBuilder, 
@@ -36,18 +39,27 @@ export class CustomerNameComponent implements OnInit {
 
   loadCustomerData(): void {
     if (this.customerId) {
-      this.customerService.getCustomerById(Number(this.customerId)).subscribe({
-        next: (data) => {
-          this.nameForm.patchValue({
-            cust_full_name: data.cust_full_name,
-            cust_dob: data.cust_dob,
-            cust_email: data.cust_email,
-            cust_contact_num: data.cust_contact_num,
-            cust_mobile_num: data.cust_mobile_num
-          });
-        },
-        error: (error) => console.error('Error loading customer data', error)
-      });
+      this.loading = true;
+      this.error = null;
+      
+      this.customerService.getCustomerById(Number(this.customerId))
+        .pipe(finalize(() => this.loading = false))
+        .subscribe({
+          next: (data) => {
+            console.log('Loaded customer data for name form:', data);
+            this.nameForm.patchValue({
+              cust_full_name: data.cust_full_name || '',
+              cust_dob: data.cust_dob || '',
+              cust_email: data.cust_email || '',
+              cust_contact_num: data.cust_contact_num || '',
+              cust_mobile_num: data.cust_mobile_num || ''
+            });
+          },
+          error: (error) => {
+            console.error('Error loading customer data', error);
+            this.error = 'Failed to load customer data. Please try again.';
+          }
+        });
     }
   }
 
@@ -63,17 +75,29 @@ export class CustomerNameComponent implements OnInit {
 
   onSubmit(): void {
     if (this.nameForm.valid) {
+      this.loading = true;
+      this.error = null;
       const nameData = this.nameForm.value;
+      
+      console.log('Submitting name form with data:', nameData);
+      console.log('Customer ID:', this.customerId);
       
       if (this.customerId) {
         // Update existing customer
-        this.customerService.updateCustomer(Number(this.customerId), nameData).subscribe({
-          next: (response) => {
-            console.log('Customer updated successfully', response);
-            this.router.navigate(['/customer-identity']);
-          },
-          error: (error) => console.error('Error updating customer', error)
-        });
+        this.customerService.updateCustomer(Number(this.customerId), nameData)
+          .pipe(finalize(() => this.loading = false))
+          .subscribe({
+            next: (response) => {
+              console.log('Customer updated successfully', response);
+              // Use session storage to pass ID to the next screen
+              sessionStorage.setItem('customerId', this.customerId);
+              this.router.navigate(['/customer-identity']);
+            },
+            error: (error) => {
+              console.error('Error updating customer', error);
+              this.error = 'Failed to update customer. Please try again.';
+            }
+          });
       } else {
         // Create new customer
         this.customerService.createCustomer({
@@ -85,15 +109,27 @@ export class CustomerNameComponent implements OnInit {
           cust_type: 1, // Default value
           cust_status: 'Active', // Default value
           cust_efctv_dt: new Date().toISOString().slice(0, 10) // Today's date
-        }).subscribe({
-          next: (response) => {
-            console.log('Customer created successfully', response);
-            this.customerId = response.cust_num!.toString();
-            sessionStorage.setItem('customerId', this.customerId);
-            this.router.navigate(['/customer-identity']);
-          },
-          error: (error) => console.error('Error creating customer', error)
-        });
+        })
+          .pipe(finalize(() => this.loading = false))
+          .subscribe({
+            next: (response) => {
+              console.log('Customer created successfully', response);
+              // Make sure we have a customer ID
+              if (response.cust_num) {
+                this.customerId = response.cust_num.toString();
+                // Use session storage to pass ID to the next screen
+                sessionStorage.setItem('customerId', this.customerId);
+                this.router.navigate(['/customer-identity']);
+              } else {
+                console.error('API response missing customer ID');
+                this.error = 'Error creating customer: Missing ID in response';
+              }
+            },
+            error: (error) => {
+              console.error('Error creating customer', error);
+              this.error = 'Failed to create customer. Please try again.';
+            }
+          });
       }
     } else {
       // Mark all fields as touched to trigger validation messages
