@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CustomerService } from '../../services/customer.service';
 
 @Component({
@@ -13,92 +13,82 @@ import { CustomerService } from '../../services/customer.service';
 })
 export class CustomerIdentityComponent implements OnInit {
   identityForm!: FormGroup;
-  frontFile: File | null = null;
-  backFile: File | null = null;
-  frontFileName: string = '';
-  backFileName: string = '';
-  customerId: string = ''; // This would typically come from a route param or state management
+  customerId: string = '';
 
   constructor(
     private fb: FormBuilder, 
     private router: Router,
+    private route: ActivatedRoute,
     private customerService: CustomerService
   ) {}
 
   ngOnInit(): void {
     this.initForm();
-    // TODO: If editing an existing customer, load their data
-    // this.loadCustomerData();
-  }
-
-  // TODO: Implement this method if you need to load existing customer data
-  // loadCustomerData(): void {
-  //   if (this.customerId) {
-  //     this.customerService.getCustomerById(this.customerId).subscribe({
-  //       next: (data) => {
-  //         this.identityForm.patchValue({
-  //           idType: data.idType,
-  //           idNumber: data.idNumber,
-  //           issueDate: data.issueDate,
-  //           expiryDate: data.expiryDate
-  //         });
-  //       },
-  //       error: (error) => console.error('Error loading customer data', error)
-  //     });
-  //   }
-  // }
-
-  initForm(): void {
-    this.identityForm = this.fb.group({
-      idType: ['', Validators.required],
-      idNumber: ['', Validators.required],
-      issueDate: [''],
-      expiryDate: ['', Validators.required]
+    
+    // Try to get customerId from session storage (if coming from customer-name)
+    const storedId = sessionStorage.getItem('customerId');
+    if (storedId) {
+      this.customerId = storedId;
+      this.loadCustomerData();
+    }
+    
+    // Also check route params (if editing existing customer)
+    this.route.params.subscribe(params => {
+      if (params['id']) {
+        this.customerId = params['id'];
+        this.loadCustomerData();
+      }
     });
   }
 
-  onFileSelected(event: any, type: 'front' | 'back'): void {
-    const file = event.target.files[0];
-    if (file) {
-      if (type === 'front') {
-        this.frontFile = file;
-        this.frontFileName = file.name;
-      } else {
-        this.backFile = file;
-        this.backFileName = file.name;
-      }
+  loadCustomerData(): void {
+    if (this.customerId) {
+      this.customerService.getCustomerById(Number(this.customerId)).subscribe({
+        next: (data) => {
+          this.identityForm.patchValue({
+            cust_type: data.cust_type?.toString(),
+            cust_status: data.cust_status,
+            cust_country: data.cust_country,
+            cust_efctv_dt: data.cust_efctv_dt
+          });
+        },
+        error: (error) => console.error('Error loading customer data', error)
+      });
     }
   }
 
+  initForm(): void {
+    this.identityForm = this.fb.group({
+      cust_type: ['', Validators.required],
+      cust_status: ['', Validators.required],
+      cust_country: ['', Validators.required],
+      cust_efctv_dt: ['', Validators.required]
+    });
+  }
+
   onSubmit(): void {
-    if (this.identityForm.valid && this.frontFile) {
-      // Handle form submission with files
-      const formData = {
-        ...this.identityForm.value,
-        frontImage: this.frontFile,
-        backImage: this.backFile
-      };
+    if (this.identityForm.valid) {
+      const identityData = this.identityForm.value;
       
-      // TODO: Replace with actual API call
       if (this.customerId) {
         // Update existing customer
-        this.customerService.updateCustomerIdentity(this.customerId, formData).subscribe({
+        this.customerService.updateCustomer(Number(this.customerId), {
+          cust_type: Number(identityData.cust_type),
+          cust_status: identityData.cust_status,
+          cust_country: identityData.cust_country,
+          cust_efctv_dt: identityData.cust_efctv_dt
+        }).subscribe({
           next: (response) => {
-            console.log('Identity updated successfully', response);
-            this.router.navigate(['/customer-contact']);
+            console.log('Customer identity updated successfully', response);
+            this.router.navigate(['/customer-list']);
           },
-          error: (error) => console.error('Error updating identity', error)
+          error: (error) => console.error('Error updating customer identity', error)
         });
       } else {
-        // Create new customer
-        this.customerService.createCustomer(formData).subscribe({
-          next: (response) => {
-            console.log('Customer created successfully', response);
-            this.customerId = response.cust_num!.toString();
-            this.router.navigate(['/customer-contact']);
-          },
-          error: (error) => console.error('Error creating customer', error)
-        });
+        // This shouldn't happen since we should come from customer-name
+        // But just in case, redirect to customer-name
+        console.warn('No customer ID found, redirecting to customer name form');
+        this.router.navigate(['/customer-name']);
       }
     } else {
       // Mark all fields as touched to trigger validation messages

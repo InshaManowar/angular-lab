@@ -14,6 +14,26 @@ const browserDistFolder = resolve(serverDistFolder, '../browser');
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
+// Define routes that should NOT be prerendered (routes with parameters)
+const dynamicRoutes = [
+  '/customer-detail/:id',
+  '/customer-edit/:id',
+  '/contact-detail/:id',
+  '/contact-edit/:id',
+  '/identification-detail/:id',
+  '/identification-edit/:id',
+];
+
+// Check if a route is dynamic (contains parameters)
+function isDynamicRoute(route: string): boolean {
+  return dynamicRoutes.some(pattern => {
+    // Convert pattern to regex
+    const regexPattern = pattern.replace(/:\w+/g, '[^/]+');
+    const regex = new RegExp(`^${regexPattern}$`);
+    return regex.test(route);
+  });
+}
+
 /**
  * Example Express Rest API endpoints can be defined here.
  * Uncomment and define endpoints as `necessary.
@@ -41,8 +61,11 @@ app.use(
  * Handle all other requests by rendering the Angular application.
  */
 app.use('/**', (req, res, next) => {
+  // Skip prerendering for dynamic routes
+  const options = isDynamicRoute(req.path) ? { disablePrerender: true } : {};
+  
   angularApp
-    .handle(req)
+    .handle(req, options)
     .then((response) =>
       response ? writeResponseToNodeResponse(response, res) : next(),
     )

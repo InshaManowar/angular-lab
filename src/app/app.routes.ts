@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { CustomerNameComponent } from './pages/customer-name/customer-name.component';
 import { CustomerIdentityComponent } from './pages/customer-identity/customer-identity.component';
-import { CustomerContactComponent } from './pages/customer-contact/customer-contact.component';
 import { CustomerListComponent } from './pages/customer-list/customer-list.component';
 import { CustomerDetailComponent } from './pages/customer-detail/customer-detail.component';
 import { CustomerEditComponent } from './pages/customer-edit/customer-edit.component';
@@ -50,7 +49,6 @@ export const routes: Routes = [
   },
   { path: 'customer-name', component: CustomerNameComponent },
   { path: 'customer-identity', component: CustomerIdentityComponent },
-  { path: 'customer-contact', component: CustomerContactComponent },
   {
     path: 'contact-list',
     loadComponent: () =>

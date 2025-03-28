@@ -25,42 +25,39 @@ export class CustomerNameComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     
-    // TODO: Get customerId from route params or state management
-    // this.route.params.subscribe(params => {
-    //   if (params['id']) {
-    //     this.customerId = params['id'];
-    //     this.loadCustomerData();
-    //   }
-    // });
+    // Check if we have a customerId in the route
+    this.route.params.subscribe(params => {
+      if (params['id']) {
+        this.customerId = params['id'];
+        this.loadCustomerData();
+      }
+    });
   }
 
-  // TODO: Implement this method if you need to load existing customer data
-  // loadCustomerData(): void {
-  //   if (this.customerId) {
-  //     this.customerService.getCustomerById(this.customerId).subscribe({
-  //       next: (data) => {
-  //         this.nameForm.patchValue({
-  //           title: data.title,
-  //           firstName: data.firstName,
-  //           middleName: data.middleName,
-  //           lastName: data.lastName,
-  //           dateOfBirth: data.dateOfBirth,
-  //           gender: data.gender
-  //         });
-  //       },
-  //       error: (error) => console.error('Error loading customer data', error)
-  //     });
-  //   }
-  // }
+  loadCustomerData(): void {
+    if (this.customerId) {
+      this.customerService.getCustomerById(Number(this.customerId)).subscribe({
+        next: (data) => {
+          this.nameForm.patchValue({
+            cust_full_name: data.cust_full_name,
+            cust_dob: data.cust_dob,
+            cust_email: data.cust_email,
+            cust_contact_num: data.cust_contact_num,
+            cust_mobile_num: data.cust_mobile_num
+          });
+        },
+        error: (error) => console.error('Error loading customer data', error)
+      });
+    }
+  }
 
   initForm(): void {
     this.nameForm = this.fb.group({
-      title: [''],
-      firstName: ['', Validators.required],
-      middleName: [''],
-      lastName: ['', Validators.required],
-      dateOfBirth: ['', Validators.required],
-      gender: ['']
+      cust_full_name: ['', Validators.required],
+      cust_dob: ['', Validators.required],
+      cust_email: ['', [Validators.required, Validators.email]],
+      cust_contact_num: ['', Validators.required],
+      cust_mobile_num: ['']
     });
   }
 
@@ -70,30 +67,30 @@ export class CustomerNameComponent implements OnInit {
       
       if (this.customerId) {
         // Update existing customer
-        this.customerService.updateCustomerName(this.customerId, {
-          cust_full_name: nameData.firstName + ' ' + 
-            (nameData.middleName ? nameData.middleName + ' ' : '') + 
-            nameData.lastName
-        }).subscribe({
+        this.customerService.updateCustomer(Number(this.customerId), nameData).subscribe({
           next: (response) => {
-            console.log('Name updated successfully', response);
-            this.router.navigate(['/customer-contact']);
+            console.log('Customer updated successfully', response);
+            this.router.navigate(['/customer-identity']);
           },
-          error: (error) => console.error('Error updating name', error)
+          error: (error) => console.error('Error updating customer', error)
         });
       } else {
         // Create new customer
         this.customerService.createCustomer({
-          cust_full_name: nameData.firstName + ' ' + 
-            (nameData.middleName ? nameData.middleName + ' ' : '') + 
-            nameData.lastName,
-          cust_type: 1 // Default value
+          cust_full_name: nameData.cust_full_name,
+          cust_dob: nameData.cust_dob,
+          cust_email: nameData.cust_email,
+          cust_contact_num: nameData.cust_contact_num,
+          cust_mobile_num: nameData.cust_mobile_num,
+          cust_type: 1, // Default value
+          cust_status: 'Active', // Default value
+          cust_efctv_dt: new Date().toISOString().slice(0, 10) // Today's date
         }).subscribe({
           next: (response) => {
             console.log('Customer created successfully', response);
             this.customerId = response.cust_num!.toString();
             sessionStorage.setItem('customerId', this.customerId);
-            this.router.navigate(['/customer-contact']);
+            this.router.navigate(['/customer-identity']);
           },
           error: (error) => console.error('Error creating customer', error)
         });

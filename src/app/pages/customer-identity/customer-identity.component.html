@@ -1,72 +1,67 @@
 <div class="form-page">
-  <h2>Proof of Identity</h2>
-  <p class="description">Upload customer identification documents</p>
+  <h2>Customer Identity Information</h2>
+  <p class="description">Enter customer identity information</p>
   
   <div class="card">
     <form [formGroup]="identityForm" (ngSubmit)="onSubmit()">
       <div class="form-section">
         <div class="form-group">
-          <label for="idType">ID Type *</label>
-          <select id="idType" formControlName="idType" class="form-control" required>
-            <option value="">-- Select ID Type --</option>
-            <option value="passport">Passport</option>
-            <option value="driverLicense">Driver's License</option>
-            <option value="nationalId">National ID Card</option>
-            <option value="other">Other</option>
+          <label for="cust_type">Customer Type *</label>
+          <select id="cust_type" formControlName="cust_type" class="form-control" required>
+            <option value="">-- Select Type --</option>
+            <option value="1">Individual</option>
+            <option value="2">Business</option>
+            <option value="3">Government</option>
           </select>
-          <div *ngIf="identityForm.get('idType')?.invalid && identityForm.get('idType')?.touched" class="error-message">
-            ID Type is required
+          <div *ngIf="identityForm.get('cust_type')?.invalid && identityForm.get('cust_type')?.touched" class="error-message">
+            Customer type is required
           </div>
         </div>
         
         <div class="form-group">
-          <label for="idNumber">ID Number *</label>
-          <input type="text" id="idNumber" formControlName="idNumber" class="form-control" required>
-          <div *ngIf="identityForm.get('idNumber')?.invalid && identityForm.get('idNumber')?.touched" class="error-message">
-            ID Number is required
+          <label for="cust_status">Status *</label>
+          <select id="cust_status" formControlName="cust_status" class="form-control" required>
+            <option value="">-- Select Status --</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Pending">Pending</option>
+          </select>
+          <div *ngIf="identityForm.get('cust_status')?.invalid && identityForm.get('cust_status')?.touched" class="error-message">
+            Status is required
           </div>
         </div>
         
         <div class="form-group">
-          <label for="issueDate">Issue Date</label>
-          <input type="date" id="issueDate" formControlName="issueDate" class="form-control">
-        </div>
-        
-        <div class="form-group">
-          <label for="expiryDate">Expiry Date *</label>
-          <input type="date" id="expiryDate" formControlName="expiryDate" class="form-control" required>
-          <div *ngIf="identityForm.get('expiryDate')?.invalid && identityForm.get('expiryDate')?.touched" class="error-message">
-            Expiry Date is required
-          </div>
-        </div>
-      </div>
-      
-      <div class="upload-section">
-        <h3>Document Upload</h3>
-        <p>Please upload scanned copies of the identification document</p>
-        
-        <div class="form-group">
-          <label for="frontSide">Front Side *</label>
-          <div class="upload-control">
-            <input type="file" id="frontSide" class="file-input" (change)="onFileSelected($event, 'front')" accept="image/*, application/pdf">
-            <button type="button" class="btn btn-outline">Choose File</button>
-            <span class="file-name">{{ frontFileName || 'No file chosen' }}</span>
+          <label for="cust_country">Country *</label>
+          <select id="cust_country" formControlName="cust_country" class="form-control" required>
+            <option value="">-- Select Country --</option>
+            <option value="US">United States</option>
+            <option value="CA">Canada</option>
+            <option value="MX">Mexico</option>
+            <option value="UK">United Kingdom</option>
+            <option value="IN">India</option>
+            <option value="AU">Australia</option>
+            <option value="JP">Japan</option>
+            <option value="DE">Germany</option>
+            <option value="FR">France</option>
+          </select>
+          <div *ngIf="identityForm.get('cust_country')?.invalid && identityForm.get('cust_country')?.touched" class="error-message">
+            Country is required
           </div>
         </div>
         
         <div class="form-group">
-          <label for="backSide">Back Side</label>
-          <div class="upload-control">
-            <input type="file" id="backSide" class="file-input" (change)="onFileSelected($event, 'back')" accept="image/*, application/pdf">
-            <button type="button" class="btn btn-outline">Choose File</button>
-            <span class="file-name">{{ backFileName || 'No file chosen' }}</span>
+          <label for="cust_efctv_dt">Effective Date *</label>
+          <input type="date" id="cust_efctv_dt" formControlName="cust_efctv_dt" class="form-control" required>
+          <div *ngIf="identityForm.get('cust_efctv_dt')?.invalid && identityForm.get('cust_efctv_dt')?.touched" class="error-message">
+            Effective date is required
           </div>
         </div>
       </div>
       
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" routerLink="/customer-name">Back</button>
-        <button type="submit" class="btn btn-primary" [disabled]="!identityForm.valid || !frontFile">Next</button>
+        <button type="submit" class="btn btn-primary" [disabled]="identityForm.invalid">Submit</button>
       </div>
     </form>
   </div>
