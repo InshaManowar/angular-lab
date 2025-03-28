@@ -62,6 +62,13 @@
   border-left: 3px solid #1a73e8;
 }
 
+/* Add margin-bottom to all list items for better spacing */
+.sidebar-nav ul li {
+  margin-bottom: 10px;
+}
+
+/* Adjust this if needed for your specific design */
+
 @media (max-width: 768px) {
   .sidebar {
     padding: 10px 0;

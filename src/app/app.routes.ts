@@ -1,6 +1,4 @@
 import { Routes } from '@angular/router';
-import { CustomerNameComponent } from './pages/customer-name/customer-name.component';
-import { CustomerIdentityComponent } from './pages/customer-identity/customer-identity.component';
 import { CustomerListComponent } from './pages/customer-list/customer-list.component';
 import { CustomerDetailComponent } from './pages/customer-detail/customer-detail.component';
 import { CustomerEditComponent } from './pages/customer-edit/customer-edit.component';
